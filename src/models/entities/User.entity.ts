@@ -1,12 +1,12 @@
-import { BeforeInsert, Column, Entity, ObjectId, ObjectIdColumn, Unique } from "typeorm";
+import { BeforeInsert, Column, Entity, ObjectId, ObjectIdColumn, PrimaryGeneratedColumn, Unique } from "typeorm";
 import { User } from "../types/User";
 import { Permissions, UserRole } from "../types/UserRole";
 
 @Entity()
 @Unique(['email'])
 export class UserEntity implements User {
-    @ObjectIdColumn()
-    _id: ObjectId;
+    @PrimaryGeneratedColumn()
+    id: number;
 
     @Column({ length: 20, nullable: false })
     firstName: string;
