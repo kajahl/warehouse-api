@@ -12,7 +12,9 @@ export enum UserRelatedPermissions {
     DELETE_USER_ROLE,
 }
 
-export type Permissions = UserRelatedPermissions
+export enum OtherPermissionsPlaceholder {}
+
+export type Permissions = UserRelatedPermissions | OtherPermissionsPlaceholder;
 
 export const UserRoleToPermissionsMap : { [key in UserRole]: Permissions[] } = {
     [UserRole.ADMIN]: [

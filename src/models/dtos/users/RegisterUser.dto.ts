@@ -1,7 +1,7 @@
 import { IsEmail, IsString, Length } from "class-validator";
-import { User } from "../../types/User";
+import { RegisterUser } from "../../types/User";
 
-export default class RegisterUserDto implements Omit<User, '_id' | 'roles' | 'permissions'> {
+export default class RegisterUserDto implements RegisterUser{
     @IsString()
     @Length(1, 20)
     firstName: string;

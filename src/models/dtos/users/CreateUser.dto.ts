@@ -1,8 +1,9 @@
 import { IsEmail, IsEnum, IsString, Length } from "class-validator";
-import { User } from "../../types/User";
-import { Permissions, UserRole } from "src/models/types/UserRole";
+import { CreateUser } from "../../types/User";
+import { Permissions, UserRole } from "../../types/UserRole";
+import { IsPermissions } from "src/utils/validators/isPermissions.validator";
 
-export default class CreateUserDto implements Omit<User, '_id'> {
+export default class CreateUserDto implements CreateUser {
     @IsString()
     @Length(1, 20)
     firstName: string;
@@ -24,7 +25,7 @@ export default class CreateUserDto implements Omit<User, '_id'> {
 
     @IsEnum(UserRole, { each: true })
     roles: UserRole[];
-
-    @IsEnum(Permissions, { each: true })
+    
+    @IsPermissions({ each: true })
     permissions: Permissions[];
 }

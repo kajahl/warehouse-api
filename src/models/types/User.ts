@@ -10,3 +10,7 @@ export type User = DatabaseId & {
     roles: UserRole[];
     permissions: Permissions[];
 }
+
+export type CreateUser = Omit<User, 'id'>;
+export type RegisterUser = Omit<User, 'id' | 'roles' | 'permissions'>;
+export type UpdateUser = Partial<Omit<User, 'id'>>;
