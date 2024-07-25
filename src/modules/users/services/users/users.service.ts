@@ -1,26 +1,52 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { UserEntity } from 'src/models/entities/User.entity';
+import { CreateUser, UpdateUser } from 'src/models/types/User';
+import { Repository } from 'typeorm';
+import * as bcrypt from 'bcrypt';
+import ChangePasswordDto from 'src/models/dtos/users/ChangePassword.dto';
 
 @Injectable()
 export class UsersService {
-    constructor() {}
+    constructor(
+        @InjectRepository(UserEntity) private usersRepository: Repository<UserEntity>
+    ) {}
 
-    async create() {
-        return 'This action adds a new user';
+    // Temp - hash will be in authService
+    hashPassword(password: string) {
+        return bcrypt.hashSync(password, 10);
     }
+    // End temp
 
+    async create(createUser: CreateUser) {
+        createUser.password = this.hashPassword(createUser.password);
+        createUser.email = createUser.email.toLowerCase();
+        return this.usersRepository.save(createUser);
+    }
+    
     async findAll() {
-        return 'This action returns all users';
+        return this.usersRepository.find(); // TODO Serialize
     }
 
-    async findOne(id: number) {
-        return `This action returns a #${id} user`;
+    async findById(id: number) {
+        return this.usersRepository.findOne({ where: { id } }); // TODO Serialize
     }
 
-    async update(id: number) {
-        return `This action updates a #${id} user`;
+    // TODO
+    async search(params: any) {
+        throw new Error('Method not implemented.');
+    }
+
+    async update(id: number, updateUser: UpdateUser) {
+        return this.usersRepository.update(id, updateUser);
+    }
+
+    async updatePassword(id: number, updateUser: ChangePasswordDto) {
+        if(updateUser.password !== updateUser.confirmPassword) throw new BadRequestException('Passwords do not match');
+        return this.usersRepository.update(id, { password: this.hashPassword(updateUser.password) });
     }
 
     async remove(id: number) {
-        return `This action removes a #${id} user`;
+        return this.usersRepository.delete(id);
     }
 }
