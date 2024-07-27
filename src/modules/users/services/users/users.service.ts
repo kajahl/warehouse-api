@@ -5,12 +5,11 @@ import { CreateUser, UpdateUser } from 'src/models/types/User';
 import { DeleteResult, QueryFailedError, Repository, UpdateResult } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import ChangePasswordDto from 'src/models/dtos/users/ChangePassword.dto';
+import { VERBOSE } from 'src/utils/consts';
 
 @Injectable()
 export class UsersService {
     constructor(@InjectRepository(UserEntity) private usersRepository: Repository<UserEntity>) {}
-
-    readonly verbose = false; // TODO: Where to store this?
 
     // Temp - hash will be in authService
     hashPassword(password: string) {
@@ -31,7 +30,7 @@ export class UsersService {
         createUser.email = createUser.email.toLowerCase();
         const user = this.usersRepository.create(createUser);
         return this.usersRepository.save(user).catch((err: any) => {
-            if (this.verbose) console.warn(err);
+            if (VERBOSE) console.warn(err);
             if (err.code === '23505') throw new ConflictException('User with this email already exists');
             throw new InternalServerErrorException('#TODO_CODE_001');
         });
@@ -44,7 +43,7 @@ export class UsersService {
      */
     async findAll() {
         return this.usersRepository.find().catch((err) => {
-            if (this.verbose) console.warn(err);
+            if (VERBOSE) console.warn(err);
             throw new InternalServerErrorException('#TODO_CODE_006');
         }); // TODO Serialize
     }
@@ -63,7 +62,7 @@ export class UsersService {
                 return u;
             })
             .catch((err) => {
-                if (this.verbose) console.warn(err);
+                if (VERBOSE) console.warn(err);
                 throw new InternalServerErrorException('#TODO_CODE_002');
             }); // TODO Serialize
         if (user === null) throw new NotFoundException('User not found');
@@ -91,7 +90,7 @@ export class UsersService {
         if (updateUser.password)
             throw new BadRequestException('Use the change password endpoint to update the password');
         const result = await this.usersRepository.update(id, updateUser).catch((err: any) => {
-            if (this.verbose) console.warn(err);
+            if (VERBOSE) console.warn(err);
             if (err.code === '23505') throw new ConflictException('User with this email already exists');
             throw new InternalServerErrorException('#TODO_CODE_003');
         });
@@ -112,7 +111,7 @@ export class UsersService {
         const result = await this.usersRepository
             .update(id, { password: this.hashPassword(updatePassword.password) })
             .catch((err: any) => {
-                if (this.verbose) console.warn(err);
+                if (VERBOSE) console.warn(err);
                 throw new InternalServerErrorException('#TODO_CODE_004');
             });
         if (result.affected === 0) throw new NotFoundException('User not found');
@@ -127,7 +126,7 @@ export class UsersService {
      */
     async remove(id: number) {
         const result = await this.usersRepository.delete(id).catch((err: any) => {
-            if (this.verbose) console.warn(err);
+            if (VERBOSE) console.warn(err);
             throw new InternalServerErrorException('#TODO_CODE_005');
         });
         if (result.affected === 0) throw new NotFoundException('User not found');
