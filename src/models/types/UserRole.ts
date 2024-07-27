@@ -1,6 +1,7 @@
 export enum UserRole {
     ADMIN = 'admin',
-    USER = 'user'
+    USER = 'user',
+    BANNED = 'banned',
 }
 
 export enum UserRelatedPermissions {
@@ -27,5 +28,6 @@ export const UserRoleToPermissionsMap : { [key in UserRole]: Permissions[] } = {
     ],
     [UserRole.USER]: [
         UserRelatedPermissions.READ_USERS,
-    ]
+    ],
+    [UserRole.BANNED]: [],
 }
