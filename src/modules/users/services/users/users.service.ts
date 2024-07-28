@@ -1,4 +1,4 @@
-import { BadRequestException, ConflictException, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
+import { BadRequestException, ConflictException, Inject, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UserEntity } from 'src/models/entities/User.entity';
 import { CreateUser, UpdateUser } from 'src/models/types/User';
@@ -6,19 +6,16 @@ import { DeleteResult, QueryFailedError, Repository, UpdateResult } from 'typeor
 import * as bcrypt from 'bcrypt';
 import ChangePasswordDto from 'src/models/dtos/users/ChangePassword.dto';
 import { VERBOSE } from 'src/utils/consts';
+import { AuthService } from 'src/modules/auth/services/auth/auth.service';
 
 @Injectable()
 export class UsersService {
-    constructor(@InjectRepository(UserEntity) private usersRepository: Repository<UserEntity>) {}
+    constructor(
+        @InjectRepository(UserEntity) private usersRepository: Repository<UserEntity>,
+        @Inject() private authService: AuthService,
+    ) {}
 
-    // Temp - hash will be in authService
-    hashPassword(password: string) {
-        return bcrypt.hashSync(password, 10);
-    }
-    comparePassword(password: string, hash: string) {
-        return bcrypt.compareSync(password, hash);
-    }
-    // End temp
+
 
     /**
      * Create a new user.
@@ -26,7 +23,7 @@ export class UsersService {
      * @returns The created user.
      */
     async create(createUser: CreateUser) {
-        createUser.password = this.hashPassword(createUser.password);
+        createUser.password = this.authService.hashPassword(createUser.password);
         createUser.email = createUser.email.toLowerCase();
         const user = this.usersRepository.create(createUser);
         return this.usersRepository.save(user).catch((err: any) => {
@@ -109,7 +106,7 @@ export class UsersService {
         if (updatePassword.password !== updatePassword.confirmPassword)
             throw new BadRequestException('Passwords do not match');
         const result = await this.usersRepository
-            .update(id, { password: this.hashPassword(updatePassword.password) })
+            .update(id, { password: this.authService.hashPassword(updatePassword.password) })
             .catch((err: any) => {
                 if (VERBOSE) console.warn(err);
                 throw new InternalServerErrorException('#TODO_CODE_004');
