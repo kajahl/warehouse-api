@@ -54,7 +54,7 @@ export class UsersController {
         @Param('id', ParseIntPipe) id: number,
         @Body() body: ChangePasswordDto
     ) {
-        return this.usersService.update(id, body);
+        return this.usersService.updatePassword(id, body);
     }
 
     @Delete(':id')
