@@ -12,7 +12,7 @@ import CustomError, { ErrorCodes } from 'src/utils/errors/Custom.error';
 export class UserRepository extends Repository<User> {
     constructor(
         @InjectRepository(UserEntity) private userRepository: Repository<UserEntity>,
-        @Inject() private authService: AuthService,
+        @Inject(AuthService) private authService: AuthService,
     ) {
         super(userRepository.target, userRepository.manager, userRepository.queryRunner);
     }
@@ -35,6 +35,15 @@ export class UserRepository extends Repository<User> {
     public async findById(id: number): Promise<User | null> {
         return this.findOneBy({ id: id }).catch((e) => null);
     }
+
+    /**
+     * Returns a user by email.
+     * @param email - The email of the user to find.
+     * @returns The user with the given email or null if not found.
+     */
+        public async findByEmail(email: string): Promise<User | null> {
+            return this.findOneBy({ email: email.toLowerCase() }).catch((e) => null);
+        }
 
     /**
      * Create a new user.
