@@ -1,15 +1,20 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { UsersService } from './users.service';
-import { getDataSourceToken, getRepositoryToken, TypeOrmModule } from '@nestjs/typeorm';
+import { getDataSourceToken, TypeOrmModule } from '@nestjs/typeorm';
 import { UserEntity } from 'src/models/entities/User.entity';
-import { DataSource, Repository } from 'typeorm';
+import { DataSource } from 'typeorm';
 import { CreateUser } from 'src/models/types/User';
 import { BadRequestException, ConflictException, NotFoundException } from '@nestjs/common';
+import { AuthModule } from 'src/modules/auth/auth.module';
+import { AuthService } from 'src/modules/auth/services/auth/auth.service';
+import { UserRepository } from 'src/models/repositories/User.repository';
+import { UsersModule } from '../../users.module';
 
 describe('UsersService', () => {
     let service: UsersService;
+    let authService: AuthService;
     let dataSource: DataSource;
-    let userRepository: Repository<UserEntity>;
+    let userRepository: UserRepository;
 
     const firstUser: CreateUser = {
         firstName: 'John',
@@ -41,14 +46,16 @@ describe('UsersService', () => {
                     entities: [UserEntity],
                     synchronize: true,
                 }),
-                TypeOrmModule.forFeature([UserEntity]),
+                AuthModule,
+                UsersModule
             ],
             providers: [UsersService],
         }).compile();
 
         service = module.get<UsersService>(UsersService);
+        authService = module.get<AuthService>(AuthService);
+        userRepository = module.get<UserRepository>(UserRepository);
         dataSource = module.get<DataSource>(getDataSourceToken());
-        userRepository = module.get<Repository<UserEntity>>(getRepositoryToken(UserEntity));
     });
 
     beforeEach(async () => {
@@ -160,7 +167,7 @@ describe('UsersService', () => {
             expect(updatedUser).toBe(true);
             const user = await userRepository.findOne({ where: { id: userId } });
             expect(user.password).not.toEqual(newPassword);
-            expect(service.comparePassword(newPassword, user.password)).toBe(true);
+            expect(authService.comparePassword(newPassword, user.password)).toBe(true);
         });
 
         it('should throw an error if the passwords do not match', async () => {

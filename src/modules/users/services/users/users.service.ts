@@ -1,21 +1,22 @@
-import { BadRequestException, ConflictException, Inject, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { UserEntity } from 'src/models/entities/User.entity';
+import {
+    BadRequestException,
+    ConflictException,
+    Inject,
+    Injectable,
+    InternalServerErrorException,
+    NotFoundException,
+} from '@nestjs/common';
 import { CreateUser, UpdateUser } from 'src/models/types/User';
-import { DeleteResult, QueryFailedError, Repository, UpdateResult } from 'typeorm';
-import * as bcrypt from 'bcrypt';
 import ChangePasswordDto from 'src/models/dtos/users/ChangePassword.dto';
 import { VERBOSE } from 'src/utils/consts';
-import { AuthService } from 'src/modules/auth/services/auth/auth.service';
+import { UserRepository } from 'src/models/repositories/User.repository';
+import CustomError, { ErrorCodes } from 'src/utils/errors/Custom.error';
 
 @Injectable()
 export class UsersService {
-    constructor(
-        @InjectRepository(UserEntity) private usersRepository: Repository<UserEntity>,
-        @Inject() private authService: AuthService,
-    ) {}
+    constructor(@Inject() private userRepository: UserRepository) {}
 
-
+    private readonly DUPLICATE_POSTGRES_ERROR_CODE = '23505';
 
     /**
      * Create a new user.
@@ -23,12 +24,10 @@ export class UsersService {
      * @returns The created user.
      */
     async create(createUser: CreateUser) {
-        createUser.password = this.authService.hashPassword(createUser.password);
-        createUser.email = createUser.email.toLowerCase();
-        const user = this.usersRepository.create(createUser);
-        return this.usersRepository.save(user).catch((err: any) => {
+        const user = this.userRepository.createOne(createUser).catch((err: any) => {
             if (VERBOSE) console.warn(err);
-            if (err.code === '23505') throw new ConflictException('User with this email already exists');
+            if (err instanceof CustomError && err.code === ErrorCodes.DUPLICATE_POSTGRES_ERROR_CODE)
+                throw new ConflictException(err.message);
             throw new InternalServerErrorException('#TODO_CODE_001');
         });
         return user;
@@ -39,31 +38,37 @@ export class UsersService {
      * @returns Array of all users.
      */
     async findAll() {
-        return this.usersRepository.find().catch((err) => {
-            if (VERBOSE) console.warn(err);
-            throw new InternalServerErrorException('#TODO_CODE_006');
-        }); // TODO Serialize
+        return this.userRepository
+            .find()
+            .then((users) => {
+                return users; // TODO Serialize
+            })
+            .catch((err) => {
+                if (VERBOSE) console.warn(err);
+                throw new InternalServerErrorException('#TODO_CODE_006');
+            });
     }
 
     /**
      * Returns a user by ID.
      * @param id - The ID of the user to find.
      * @returns The user with the given ID.
-     * @throws BadRequestException if the user is not found.
+     * @throws NotFoundException if the user is not found.
      * @throws InternalServerErrorException for other errors.
      */
     async findById(id: number) {
-        const user = await this.usersRepository
-            .findOne({ where: { id } })
-            .then((u) => {
-                return u;
+        return await this.userRepository
+            .findById(id)
+            .then((user) => {
+                if (!user) throw new CustomError(ErrorCodes.NOT_FOUND, 'User not found');
+                return user; // TODO Serialize
             })
             .catch((err) => {
                 if (VERBOSE) console.warn(err);
+                if (err instanceof CustomError && err.code === ErrorCodes.NOT_FOUND)
+                    throw new NotFoundException(err.message);
                 throw new InternalServerErrorException('#TODO_CODE_002');
-            }); // TODO Serialize
-        if (user === null) throw new NotFoundException('User not found');
-        return user;
+            });
     }
 
     // TODO
@@ -76,23 +81,27 @@ export class UsersService {
      * @param id - The ID of the user to update.
      * @param updateUser - The user data to update.
      * @returns The updated user.
-     * @throws BadRequestException if:
-     * - (1) The user is not found.
-     * - (2) The email already exists.
-     * - (3) The password is included in the update data.
+     * @throws ConflictException if user with that email already exists.
+     * @throws NotFoundException The user is not found.
+     * @throws BadRequestException The password is included in the update data.
      * @throws InternalServerErrorException for other errors.
      */
     async update(id: number, updateUser: UpdateUser) {
-        if (updateUser.email) updateUser.email = updateUser.email.toLowerCase();
-        if (updateUser.password)
-            throw new BadRequestException('Use the change password endpoint to update the password');
-        const result = await this.usersRepository.update(id, updateUser).catch((err: any) => {
-            if (VERBOSE) console.warn(err);
-            if (err.code === '23505') throw new ConflictException('User with this email already exists');
-            throw new InternalServerErrorException('#TODO_CODE_003');
-        });
-        if (result.affected === 0) throw new NotFoundException('User not found');
-        return this.findById(id);
+        return await this.userRepository
+            .updateOne(id, updateUser)
+            .then((user) => {
+                return user; // TODO Serialize
+            })
+            .catch((err: any) => {
+                if (VERBOSE) console.warn(err);
+                if (err instanceof CustomError && err.code === ErrorCodes.BAD_METHOD)
+                    throw new BadRequestException(err.message);
+                if (err instanceof CustomError && err.code === ErrorCodes.DUPLICATE_POSTGRES_ERROR_CODE)
+                    throw new ConflictException(err.message);
+                if (err instanceof CustomError && err.code === ErrorCodes.NOT_FOUND)
+                    throw new NotFoundException(err.message);
+                throw new InternalServerErrorException('#TODO_CODE_003');
+            });
     }
 
     /**
@@ -101,17 +110,17 @@ export class UsersService {
      * @param updatePassword - The new password data.
      * @returns The result of the update operation.
      * @throws BadRequestException if the passwords do not match.
+     * @throws InternalServerErrorException for other errors.
      */
     async updatePassword(id: number, updatePassword: ChangePasswordDto) {
         if (updatePassword.password !== updatePassword.confirmPassword)
             throw new BadRequestException('Passwords do not match');
-        const result = await this.usersRepository
-            .update(id, { password: this.authService.hashPassword(updatePassword.password) })
-            .catch((err: any) => {
-                if (VERBOSE) console.warn(err);
-                throw new InternalServerErrorException('#TODO_CODE_004');
-            });
-        if (result.affected === 0) throw new NotFoundException('User not found');
+        await this.userRepository.updatePassword(id, updatePassword.password).catch((err: any) => {
+            if (VERBOSE) console.warn(err);
+            if (err instanceof CustomError && err.code === ErrorCodes.NOT_FOUND)
+                throw new NotFoundException(err.message);
+            throw new InternalServerErrorException('#TODO_CODE_004');
+        });
         return true;
     }
 
@@ -120,13 +129,15 @@ export class UsersService {
      * @param id - The ID of the user to delete.
      * @returns True if the user was deleted.
      * @throws BadRequestException if the user is not found.
+     * @throws InternalServerErrorException for other errors.
      */
     async remove(id: number) {
-        const result = await this.usersRepository.delete(id).catch((err: any) => {
+        const result = await this.userRepository.deleteOne(id).catch((err: any) => {
             if (VERBOSE) console.warn(err);
+            if (err instanceof CustomError && err.code === ErrorCodes.NOT_FOUND)
+                throw new NotFoundException(err.message);
             throw new InternalServerErrorException('#TODO_CODE_005');
         });
-        if (result.affected === 0) throw new NotFoundException('User not found');
         return true;
     }
 }
