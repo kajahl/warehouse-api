@@ -9,6 +9,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { PassportModule } from '@nestjs/passport';
 import { LocalStrategy } from './stragegies/local.strategy';
 import { SessionSerializer } from './serializer/Session.serializer';
+import { PasswordService } from './services/password/password.service';
 
 @Module({
     imports: [
@@ -25,7 +26,7 @@ import { SessionSerializer } from './serializer/Session.serializer';
         forwardRef(() => UsersModule),
         PassportModule.register({ session: true }),
     ],
-    providers: [AuthService, LocalStrategy, SessionSerializer],
+    providers: [AuthService, LocalStrategy, SessionSerializer, PasswordService],
     controllers: [AuthController],
     exports: [AuthService],
 })

@@ -8,11 +8,12 @@ import { Inject } from '@nestjs/common';
 import { AuthService } from 'src/modules/auth/services/auth/auth.service';
 import ChangePasswordDto from '../dtos/users/ChangePassword.dto';
 import CustomError, { ErrorCodes } from 'src/utils/errors/Custom.error';
+import { PasswordService } from 'src/modules/auth/services/password/password.service';
 
 export class UserRepository extends Repository<User> {
     constructor(
         @InjectRepository(UserEntity) private userRepository: Repository<UserEntity>,
-        @Inject(AuthService) private authService: AuthService,
+        @Inject(PasswordService) private passwordService: PasswordService,
     ) {
         super(userRepository.target, userRepository.manager, userRepository.queryRunner);
     }
@@ -52,7 +53,7 @@ export class UserRepository extends Repository<User> {
      * @throws CustomError if the user with that email already exists.
      */
     public async createOne(user: CreateUser): Promise<User> {
-        user.password = this.authService.hashPassword(user.password);
+        user.password = this.passwordService.hashPassword(user.password);
         user.email = user.email.toLowerCase();
         const newUser = this.create(user);
         return this.save(newUser).catch((err) => {
@@ -95,7 +96,7 @@ export class UserRepository extends Repository<User> {
     public async updatePassword(id: number, newPassword: string): Promise<User> {
         const user = await this.findById(id);
         if (!user) throw new CustomError(ErrorCodes.NOT_FOUND, 'User not found');
-        user.password = this.authService.hashPassword(newPassword);
+        user.password = this.passwordService.hashPassword(newPassword);
         return this.save(user);
     }
 
