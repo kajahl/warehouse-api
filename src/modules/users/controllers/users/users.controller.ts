@@ -24,17 +24,6 @@ export class UsersController {
     }
 
     @Post()
-    async register(
-        @Body() body: RegisterUserDto
-    ) {
-        return this.usersService.create({
-            ...body,
-            roles: [],
-            permissions: []
-        });
-    }
-
-    @Post('create')
     async create(
         @Body() body: CreateUserDto
     ) {
