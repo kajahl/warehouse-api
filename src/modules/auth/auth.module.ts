@@ -28,6 +28,6 @@ import { PasswordService } from './services/password/password.service';
     ],
     providers: [AuthService, LocalStrategy, SessionSerializer, PasswordService],
     controllers: [AuthController],
-    exports: [AuthService],
+    exports: [AuthService, PasswordService],
 })
 export class AuthModule {}
