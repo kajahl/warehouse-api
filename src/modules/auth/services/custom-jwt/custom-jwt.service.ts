@@ -1,42 +1,128 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { BadRequestException, Inject, Injectable, InternalServerErrorException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService as NestJwtService } from '@nestjs/jwt';
+import { InjectRepository } from '@nestjs/typeorm';
+import { TokenRepository } from 'src/models/repositories/Token.repository';
 import { User } from 'src/models/types/User';
+import * as bcrypt from 'bcrypt';
+import { JwtAccessToken, JwtPayload, JwtTokens } from 'src/models/types/Jwt';
+import CustomError, { ErrorCodes } from 'src/utils/errors/Custom.error';
+import { VERBOSE } from 'src/utils/consts';
 
 @Injectable()
 export class CustomJwtService {
     constructor(
         private readonly jwtService: NestJwtService,
         private readonly configService: ConfigService,
+        @InjectRepository(TokenRepository) private tokenRepository: TokenRepository,
     ) {}
 
-    async generateTokens(user: Omit<User, 'password'>): Promise<{
-        accessToken: string;
-        refreshToken: string;
-    }> {
-        const payload = { sub: user.id, email: user.email };
-
-        const accessToken = this.jwtService.sign(payload, {
-            expiresIn: '1d',
-            secret: this.configService.get<string>('JWT_SECRET'),
+    /**
+     * Generate tokens for user and store refresh token in the database
+     * @param user - user (id and email) to generate tokens for
+     * @returns tokens
+     *
+     */
+    async generateTokens(user: Pick<User, 'id' | 'email'>): Promise<JwtTokens> {
+        const payload: JwtPayload = { sub: user.id, email: user.email };
+        const accessToken = this._generateAccessToken(payload);
+        const refreshToken = this._generateRefreshToken(payload);
+        this.tokenRepository.updateToken(user.id, refreshToken).catch((e) => {
+            if (VERBOSE) console.warn(e);
+            if (e instanceof CustomError && e.code === ErrorCodes.TO_BE_DEFINED) new BadRequestException(e.message);
+            throw new InternalServerErrorException('#TODO_CODE_011');
         });
-
-        const refreshToken = this.jwtService.sign(payload, {
-            expiresIn: '7d',
-            secret: this.configService.get<string>('JWT_REFRESH_SECRET'),
-        });
-
         return {
             accessToken,
             refreshToken,
         };
     }
 
-    async verifyToken(token: string): Promise<any> {
-        return this.jwtService.verify(token);
+    /**
+     * Refresh access token using refresh token
+     * @param refreshToken refresh token
+     * @returns new access token
+     */
+    async refreshAccessToken(refreshToken: string): Promise<JwtAccessToken> {
+        // Check if token is valid
+        this._verifyToken(refreshToken, true);
+
+        // Check if token exists in the database
+        const payload = this._decodeToken(refreshToken);
+        const hashedToken = await this.tokenRepository.getHashedTokenByUserId(payload.sub).catch((e) => {
+            if (VERBOSE) console.warn(e);
+            if (e instanceof CustomError && e.code === ErrorCodes.NOT_FOUND)
+                throw new BadRequestException('Token not found in the database');
+            throw new InternalServerErrorException('#TODO_CODE_012');
+        });
+        if (!bcrypt.compareSync(refreshToken, hashedToken)) throw new BadRequestException('Invalid token');
+        return {
+            accessToken: this._generateAccessToken(payload),
+        };
     }
 
-    async decodeToken(token: string): Promise<any> {
-        return this.jwtService.decode(token);
+    /**
+     * Verify token
+     * @param token token to verify
+     * @param refresh is it a refresh token
+     * @returns true if token is valid
+     * @throws BadRequestException if token is invalid
+     */
+    _verifyToken(token: string, refresh: boolean = false): true {
+        try {
+            this.jwtService.verify(token, {
+                secret: this.configService.get<string>(refresh ? 'JWT_REFRESH_SECRET' : 'JWT_SECRET'),
+            });
+            return true;
+        } catch (e) {
+            if (VERBOSE) console.warn(e);
+            throw new BadRequestException('Invalid token');
+        }
+    }
+
+    /**
+     * Decode token
+     * @param token token to decode 
+     * @returns decoded token
+     * @throws BadRequestException if token is invalid
+     */
+    _decodeToken(token: string): JwtPayload {
+        try {
+            const decoded = this.jwtService.decode(token);
+            return decoded as JwtPayload;
+        } catch (e) {
+            if (VERBOSE) console.warn(e);
+            throw new BadRequestException('Unable to decode token');
+        }
+    }
+
+    /**
+     * Generate access token
+     * @param payload payload to sign
+     * @returns access token
+     */
+    _generateAccessToken(payload: JwtPayload): string {
+        return this.jwtService.sign({
+            sub: payload.sub,
+            email: payload.email,
+        }, {
+            expiresIn: '1m',
+            secret: this.configService.get<string>('JWT_SECRET'),
+        });
+    }
+
+    /**
+     * Generate refresh token
+     * @param payload payload to sign
+     * @returns refresh token
+     */
+    _generateRefreshToken(payload: JwtPayload): string {
+        return this.jwtService.sign({
+            sub: payload.sub,
+            email: payload.email,
+        }, {
+            expiresIn: '7d',
+            secret: this.configService.get<string>('JWT_REFRESH_SECRET'),
+        });
     }
 }

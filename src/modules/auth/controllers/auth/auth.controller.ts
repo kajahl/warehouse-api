@@ -6,6 +6,7 @@ import { JwtAuthGuard } from 'src/utils/guards/JwtAuth.guard';
 import RegisterUserDto from 'src/models/dtos/users/RegisterUser.dto';
 import { UsersService } from 'src/modules/users/services/users/users.service';
 import { CustomJwtService } from '../../services/custom-jwt/custom-jwt.service';
+import { JwtRefreshAuthGuard } from 'src/utils/guards/JwtRefreshAuth.guard';
 
 @Controller('auth')
 export class AuthController {
@@ -66,10 +67,17 @@ export class AuthController {
 
     // Jwt
 
-    @Post('generate-tokens')
+    @Post('token/generate')
     @UseGuards(IsAuthenticatedGuard)
     async generateTokens(@Request() req) {
         return this.jwtService.generateTokens(req.user);
+    }
+
+    @Post('token/refresh')
+    @UseGuards(JwtRefreshAuthGuard)
+    async refreshAccessToken(@Request() req) {
+        const token = req.get('authorization').replace('Bearer', '').trim();
+        return this.jwtService.refreshAccessToken(token);
     }
 
     // Utils
