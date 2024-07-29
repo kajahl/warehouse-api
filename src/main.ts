@@ -5,6 +5,7 @@ import * as session from 'express-session';
 import * as passport from 'passport';
 import * as connectPgSimple from 'connect-pg-simple';
 import { Pool } from 'pg';
+import { ValidationPipe } from '@nestjs/common';
 
 async function bootstrap() {
     const app = await NestFactory.create(AppModule);
@@ -38,6 +39,7 @@ async function bootstrap() {
     );
     app.use(passport.initialize());
     app.use(passport.session());
+    app.useGlobalPipes(new ValidationPipe());
     await app.listen(3000);
 }
 bootstrap();
