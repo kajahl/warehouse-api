@@ -3,10 +3,14 @@ import { AuthService } from '../../services/auth/auth.service';
 import { LocalAuthGuard } from 'src/utils/guards/LocalAuth.guard';
 import { IsAuthenticatedGuard } from 'src/utils/guards/IsAuthenticated.guard';
 import { JwtAuthGuard } from 'src/utils/guards/JwtAuth.guard';
+import { CustomJwtService } from '../../services/custom-jwt/custom-jwt.service';
 
 @Controller('auth')
 export class AuthController {
-    constructor(@Inject() private authService: AuthService) {}
+    constructor(
+        @Inject() private authService: AuthService,
+        @Inject() private jwtService: CustomJwtService
+    ) {}
 
     // Local
     @Post('login')
@@ -33,12 +37,7 @@ export class AuthController {
         });
     }
 
-    // Utils
-    @Get('profile')
-    @UseGuards(JwtAuthGuard)
-    getProfile(@Request() req) {
-        return req.user;
-    }
+    // Session
 
     @Get('session')
     @UseGuards(IsAuthenticatedGuard)
@@ -46,5 +45,20 @@ export class AuthController {
         console.log(session);
         console.log(session.id);
         return session;
+    }
+
+    // Jwt
+
+    @Post('generate-tokens')
+    @UseGuards(IsAuthenticatedGuard)
+    async generateTokens(@Request() req) {
+        return this.jwtService.generateTokens(req.user);
+    }
+
+    // Utils
+    @Get('profile')
+    @UseGuards(JwtAuthGuard)
+    getProfile(@Request() req) {
+        return req.user;
     }
 }

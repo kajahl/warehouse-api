@@ -10,6 +10,8 @@ import { PassportModule } from '@nestjs/passport';
 import { LocalStrategy } from './stragegies/local.strategy';
 import { SessionSerializer } from './serializer/Session.serializer';
 import { PasswordService } from './services/password/password.service';
+import { CustomJwtService } from './services/custom-jwt/custom-jwt.service';
+import { JwtStrategy } from './stragegies/jwt.strategy';
 
 @Module({
     imports: [
@@ -26,8 +28,8 @@ import { PasswordService } from './services/password/password.service';
         forwardRef(() => UsersModule),
         PassportModule.register({ session: true }),
     ],
-    providers: [AuthService, LocalStrategy, SessionSerializer, PasswordService],
+    providers: [AuthService, JwtStrategy, LocalStrategy, SessionSerializer, PasswordService, CustomJwtService],
     controllers: [AuthController],
-    exports: [AuthService],
+    exports: [AuthService, PasswordService, CustomJwtService],
 })
 export class AuthModule {}
