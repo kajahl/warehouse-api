@@ -21,15 +21,16 @@ export class CustomJwtService {
      * Generate tokens for user and store refresh token in the database
      * @param user - user (id and email) to generate tokens for
      * @returns tokens
-     *
+     * @throws BadRequestException if token could not be saved in the database
+     * @throws InternalServerErrorException in case of other error
      */
     async generateTokens(user: Pick<User, 'id' | 'email'>): Promise<JwtTokens> {
         const payload: JwtPayload = { sub: user.id, email: user.email };
         const accessToken = this._generateAccessToken(payload);
         const refreshToken = this._generateRefreshToken(payload);
-        this.tokenRepository.updateToken(user.id, refreshToken).catch((e) => {
+        await this.tokenRepository.updateToken(user.id, refreshToken).catch((e) => {
             if (VERBOSE) console.warn(e);
-            if (e instanceof CustomError && e.code === ErrorCodes.TO_BE_DEFINED) new BadRequestException(e.message);
+            if (e instanceof CustomError && e.code === ErrorCodes.JWT_SAVE_ERROR) throw new BadRequestException(e.message);
             throw new InternalServerErrorException('#TODO_CODE_011');
         });
         return {
@@ -42,6 +43,8 @@ export class CustomJwtService {
      * Refresh access token using refresh token
      * @param refreshToken refresh token
      * @returns new access token
+     * @throws BadRequestException if token is invalid (token not found in database or hash does not match)
+     * @throws InternalServerErrorException in case of other error
      */
     async refreshAccessToken(refreshToken: string): Promise<JwtAccessToken> {
         // Check if token is valid

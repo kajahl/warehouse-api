@@ -26,7 +26,7 @@ export class TokenRepository extends Repository<TokenEntity> {
             const token = this.create({ user: { id: userId }, refreshTokenHash: hashedToken });
             existingToken = await this.save(token).catch(e => {
                 if (VERBOSE) console.warn(e);
-                throw new CustomError(ErrorCodes.TO_BE_DEFINED, `Error while creating token ${e}`);
+                throw new CustomError(ErrorCodes.JWT_SAVE_ERROR, `Error while creating token ${e}`);
             });
             return true;
         }
@@ -35,7 +35,7 @@ export class TokenRepository extends Repository<TokenEntity> {
         existingToken.refreshTokenHash = hashedToken;
         await this.save(existingToken).catch(e => {
             if (VERBOSE) console.warn(e);
-            throw new CustomError(ErrorCodes.TO_BE_DEFINED, `Error while updating token ${e}`);
+            throw new CustomError(ErrorCodes.JWT_SAVE_ERROR, `Error while updating token ${e}`);
         });
         return true;
     }
