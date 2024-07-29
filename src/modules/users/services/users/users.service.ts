@@ -39,7 +39,7 @@ export class UsersService {
      */
     async findAll() {
         return this.userRepository
-            .find()
+            .findAll()
             .then((users) => {
                 return users; // TODO Serialize
             })
