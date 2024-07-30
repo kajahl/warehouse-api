@@ -7,12 +7,12 @@ import { UsersModule } from '../users/users.module';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { PassportModule } from '@nestjs/passport';
-import { LocalStrategy } from './stragegies/local.strategy';
+import { LocalStrategy } from './strategies/local.strategy';
 import { SessionSerializer } from './serializer/Session.serializer';
 import { PasswordService } from './services/password/password.service';
 import { CustomJwtService } from './services/custom-jwt/custom-jwt.service';
-import { JwtStrategy } from './stragegies/jwt.strategy';
-import { JwtRefreshStrategy } from './stragegies/jwt-refresh.strategy';
+import { JwtStrategy } from './strategies/jwt.strategy';
+import { JwtRefreshStrategy } from './strategies/jwt-refresh.strategy';
 import { TokenEntity } from 'src/models/entities/Token.entity';
 import { TokenRepository } from 'src/models/repositories/Token.repository';
 
