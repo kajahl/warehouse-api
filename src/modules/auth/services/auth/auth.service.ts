@@ -11,6 +11,7 @@ export class AuthService {
     ) {}
 
     async validateUser(email: string, password: string): Promise<Omit<User, 'password'> | null> {
+        email = email.toLowerCase();
         const user = await this.userRepository.findByEmail(email);
         if (user == null) return null;
         const correctPassword = this.passwordService.comparePassword(password, user.password);
