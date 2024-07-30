@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { LocalStrategy } from './local.strategy';
-import { AuthService } from '../services/auth/auth.service';
+import { AuthService } from '../../services/auth/auth.service';
 import { UnauthorizedException } from '@nestjs/common';
 import { User } from 'src/models/types/User';
 import { UserRole } from 'src/models/types/UserRole';
