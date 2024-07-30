@@ -1,6 +1,4 @@
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
-import { JwtService } from '@nestjs/jwt';
 import { UserRepository } from 'src/models/repositories/User.repository';
 import { User } from 'src/models/types/User';
 import { PasswordService } from '../password/password.service';
@@ -9,9 +7,7 @@ import { PasswordService } from '../password/password.service';
 export class AuthService {
     constructor(
         @Inject(forwardRef(() => UserRepository)) private userRepository: UserRepository,
-        @Inject() private passwordService: PasswordService,
-        @Inject() private configService: ConfigService,
-        @Inject() private jwtService: JwtService,
+        private passwordService: PasswordService
     ) {}
 
     async validateUser(email: string, password: string): Promise<Omit<User, 'password'> | null> {
@@ -22,16 +18,8 @@ export class AuthService {
         const { password: _, ...result } = user;
         return result;
     }
-
-    async login(user: User) {
-        // const payload = {
-        //     id: user.id
-        // };
-        // return {
-        //     access_token: this.jwtService.sign(payload, { expiresIn: '1d', secret: this.configService.get<string>('JWT_SECRET') }),
-        // };
-        return true;
-    }
-
     
+    async login(user: Omit<User, 'password'>) {
+        return user;
+    }
 }

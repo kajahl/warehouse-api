@@ -5,12 +5,17 @@ import { IsAuthenticatedGuard } from 'src/utils/guards/IsAuthenticated.guard';
 import { JwtAuthGuard } from 'src/utils/guards/JwtAuth.guard';
 import RegisterUserDto from 'src/models/dtos/users/RegisterUser.dto';
 import { UsersService } from 'src/modules/users/services/users/users.service';
+import { CustomJwtService } from '../../services/custom-jwt/custom-jwt.service';
+import { JwtRefreshAuthGuard } from 'src/utils/guards/JwtRefreshAuth.guard';
 
 @Controller('auth')
 export class AuthController {
     constructor(
+        
         @Inject() private authService: AuthService,
         @Inject() private usersService: UsersService
+    ,
+        @Inject() private jwtService: CustomJwtService
     ) {}
 
     // Local
@@ -50,12 +55,7 @@ export class AuthController {
         });
     }
 
-    // Utils
-    @Get('profile')
-    @UseGuards(JwtAuthGuard)
-    getProfile(@Request() req) {
-        return req.user;
-    }
+    // Session
 
     @Get('session')
     @UseGuards(IsAuthenticatedGuard)
@@ -63,5 +63,27 @@ export class AuthController {
         console.log(session);
         console.log(session.id);
         return session;
+    }
+
+    // Jwt
+
+    @Post('token/generate')
+    @UseGuards(IsAuthenticatedGuard)
+    async generateTokens(@Request() req) {
+        return this.jwtService.generateTokens(req.user);
+    }
+
+    @Post('token/refresh')
+    @UseGuards(JwtRefreshAuthGuard)
+    async refreshAccessToken(@Request() req) {
+        const token = req.get('authorization').replace('Bearer', '').trim();
+        return this.jwtService.refreshAccessToken(token);
+    }
+
+    // Utils
+    @Get('profile')
+    @UseGuards(JwtAuthGuard)
+    getProfile(@Request() req) {
+        return req.user;
     }
 }

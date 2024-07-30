@@ -10,11 +10,16 @@ import { PassportModule } from '@nestjs/passport';
 import { LocalStrategy } from './stragegies/local.strategy';
 import { SessionSerializer } from './serializer/Session.serializer';
 import { PasswordService } from './services/password/password.service';
+import { CustomJwtService } from './services/custom-jwt/custom-jwt.service';
+import { JwtStrategy } from './stragegies/jwt.strategy';
+import { JwtRefreshStrategy } from './stragegies/jwt-refresh.strategy';
+import { TokenEntity } from 'src/models/entities/Token.entity';
+import { TokenRepository } from 'src/models/repositories/Token.repository';
 
 @Module({
     imports: [
         ConfigModule,
-        TypeOrmModule.forFeature([UserEntity]),
+        TypeOrmModule.forFeature([UserEntity, TokenEntity]),
         JwtModule.registerAsync({
             imports: [ConfigModule],
             useFactory: async (configService: ConfigService) => ({
@@ -26,8 +31,8 @@ import { PasswordService } from './services/password/password.service';
         forwardRef(() => UsersModule),
         PassportModule.register({ session: true }),
     ],
-    providers: [AuthService, LocalStrategy, SessionSerializer, PasswordService],
+    providers: [AuthService, JwtStrategy, JwtRefreshStrategy, LocalStrategy, SessionSerializer, PasswordService, CustomJwtService, TokenRepository],
     controllers: [AuthController],
-    exports: [AuthService, PasswordService],
+    exports: [AuthService, PasswordService, CustomJwtService],
 })
 export class AuthModule {}
