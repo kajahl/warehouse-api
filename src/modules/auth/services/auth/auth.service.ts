@@ -1,5 +1,5 @@
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
-import { UserRepository } from 'src/models/repositories/User.repository';
+import { UserRepository } from 'src/models/repositories/user/User.repository';
 import { User } from 'src/models/types/User';
 import { PasswordService } from '../password/password.service';
 

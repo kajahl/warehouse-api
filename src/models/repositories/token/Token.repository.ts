@@ -1,5 +1,5 @@
 import { Repository } from 'typeorm';
-import { TokenEntity } from '../entities/Token.entity';
+import { TokenEntity } from '../../entities/Token.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import * as bcrypt from 'bcrypt';
 import CustomError, { ErrorCodes } from 'src/utils/errors/Custom.error';

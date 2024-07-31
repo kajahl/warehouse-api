@@ -2,7 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { CustomJwtService } from './custom-jwt.service';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
-import { TokenRepository } from 'src/models/repositories/Token.repository';
+import { TokenRepository } from 'src/models/repositories/token/Token.repository';
 import CustomError, { ErrorCodes } from 'src/utils/errors/Custom.error';
 import { BadRequestException, InternalServerErrorException } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';

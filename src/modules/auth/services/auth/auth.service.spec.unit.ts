@@ -3,7 +3,7 @@ import { AuthService } from './auth.service';
 import { UserRole } from 'src/models/types/UserRole';
 import { permission } from 'process';
 import { User } from 'src/models/types/User';
-import { UserRepository } from 'src/models/repositories/User.repository';
+import { UserRepository } from 'src/models/repositories/user/User.repository';
 import { PasswordService } from '../password/password.service';
 import { resolve } from 'dns';
 

@@ -1,12 +1,8 @@
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
-import { CreateUser, UpdateUser, User } from '../types/User';
-import { UserEntity } from '../entities/User.entity';
-import CreateUserDto from '../dtos/users/CreateUser.dto';
-import UpdateUserDto from '../dtos/users/UpdateUser.dto';
+import { CreateUser, UpdateUser, User } from '../../types/User';
+import { UserEntity } from '../../entities/User.entity';
 import { Inject } from '@nestjs/common';
-import { AuthService } from 'src/modules/auth/services/auth/auth.service';
-import ChangePasswordDto from '../dtos/users/ChangePassword.dto';
 import CustomError, { ErrorCodes } from 'src/utils/errors/Custom.error';
 import { PasswordService } from 'src/modules/auth/services/password/password.service';
 

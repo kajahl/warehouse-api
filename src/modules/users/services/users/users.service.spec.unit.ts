@@ -3,7 +3,7 @@ import { UsersService } from './users.service';
 import { CreateUser, UpdateUser, User } from 'src/models/types/User';
 import CustomError, { ErrorCodes } from 'src/utils/errors/Custom.error';
 import { UserRole } from 'src/models/types/UserRole';
-import { UserRepository } from 'src/models/repositories/User.repository';
+import { UserRepository } from 'src/models/repositories/user/User.repository';
 import { BadRequestException, ConflictException, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import ChangePasswordDto from 'src/models/dtos/users/ChangePassword.dto';
 

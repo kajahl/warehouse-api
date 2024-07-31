@@ -2,7 +2,7 @@ import { BadRequestException, Inject, Injectable, InternalServerErrorException }
 import { ConfigService } from '@nestjs/config';
 import { JwtService as NestJwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
-import { TokenRepository } from 'src/models/repositories/Token.repository';
+import { TokenRepository } from 'src/models/repositories/token/Token.repository';
 import { User } from 'src/models/types/User';
 import * as bcrypt from 'bcrypt';
 import { JwtAccessToken, JwtPayload, JwtTokens } from 'src/models/types/Jwt';

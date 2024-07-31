@@ -6,7 +6,7 @@ import { UsersService } from './services/users/users.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UserEntity } from 'src/models/entities/User.entity';
 import { AuthModule } from '../auth/auth.module';
-import { UserRepository } from 'src/models/repositories/User.repository';
+import { UserRepository } from 'src/models/repositories/user/User.repository';
 import { ConfigModule } from '@nestjs/config';
 
 @Module({

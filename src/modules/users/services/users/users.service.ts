@@ -9,7 +9,7 @@ import {
 import { CreateUser, UpdateUser } from 'src/models/types/User';
 import ChangePasswordDto from 'src/models/dtos/users/ChangePassword.dto';
 import { VERBOSE } from 'src/utils/consts';
-import { UserRepository } from 'src/models/repositories/User.repository';
+import { UserRepository } from 'src/models/repositories/user/User.repository';
 import CustomError, { ErrorCodes } from 'src/utils/errors/Custom.error';
 
 @Injectable()

@@ -7,7 +7,7 @@ import { CreateUser } from 'src/models/types/User';
 import { BadRequestException, ConflictException, NotFoundException } from '@nestjs/common';
 import { AuthModule } from 'src/modules/auth/auth.module';
 import { AuthService } from 'src/modules/auth/services/auth/auth.service';
-import { UserRepository } from 'src/models/repositories/User.repository';
+import { UserRepository } from 'src/models/repositories/user/User.repository';
 import { UsersModule } from '../../users.module';
 
 describe('UsersService', () => {

@@ -14,7 +14,7 @@ import { CustomJwtService } from './services/custom-jwt/custom-jwt.service';
 import { JwtStrategy } from './strategies/jwt/jwt.strategy';
 import { JwtRefreshStrategy } from './strategies/jwt-refresh/jwt-refresh.strategy';
 import { TokenEntity } from 'src/models/entities/Token.entity';
-import { TokenRepository } from 'src/models/repositories/Token.repository';
+import { TokenRepository } from 'src/models/repositories/token/Token.repository';
 
 @Module({
     imports: [
