@@ -5,7 +5,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { TokenRepository } from 'src/models/repositories/token/Token.repository';
 import { User } from 'src/models/types/User';
 import * as bcrypt from 'bcrypt';
-import { JwtAccessToken, JwtPayload, JwtTokens } from 'src/models/types/Jwt';
+import { JwtAccessToken, JwtPayload, JwtScope, JwtTokens } from 'src/models/types/Jwt';
 import CustomError, { ErrorCodes } from 'src/utils/errors/Custom.error';
 import { VERBOSE } from 'src/utils/consts';
 
@@ -62,6 +62,16 @@ export class CustomJwtService {
         return {
             accessToken: this._generateAccessToken(payload),
         };
+    }
+
+    // TODO: Implement this method
+    /**
+     * Get scopes from token
+     * @param token token to get scopes from
+     * @returns scopes
+     */
+    async getScopesFromToken(token: string): Promise<JwtScope[]> {
+        return Promise.resolve([]);
     }
 
     /**

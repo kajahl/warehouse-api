@@ -13,3 +13,7 @@ export type JwtAccessToken = {
 
 export type JwtTokens = JwtRefreshToken & JwtAccessToken;
 
+// TODO: Implement
+export enum JwtScope {
+    TO_BE_IMPLEMENTED
+}
