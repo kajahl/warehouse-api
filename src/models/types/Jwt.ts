@@ -14,6 +14,11 @@ export type JwtAccessToken = {
 export type JwtTokens = JwtRefreshToken & JwtAccessToken;
 
 // TODO: Implement
-export enum JwtScope {
-    TO_BE_IMPLEMENTED
+export type JwtScopes = JwtTestScopes
+
+export enum JwtTestScopes {
+    TO_BE_IMPLEMENTED,
+    TEST_SCOPE_1,
+    TEST_SCOPE_2,
+    TEST_SCOPE_3,
 }

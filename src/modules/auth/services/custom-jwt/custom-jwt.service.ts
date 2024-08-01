@@ -5,7 +5,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { TokenRepository } from 'src/models/repositories/token/Token.repository';
 import { User } from 'src/models/types/User';
 import * as bcrypt from 'bcrypt';
-import { JwtAccessToken, JwtPayload, JwtScope, JwtTokens } from 'src/models/types/Jwt';
+import { JwtAccessToken, JwtPayload, JwtScopes, JwtTokens } from 'src/models/types/Jwt';
 import CustomError, { ErrorCodes } from 'src/utils/errors/Custom.error';
 import { VERBOSE } from 'src/utils/consts';
 
@@ -70,7 +70,7 @@ export class CustomJwtService {
      * @param token token to get scopes from
      * @returns scopes
      */
-    async getScopesFromToken(token: string): Promise<JwtScope[]> {
+    async getScopesFromToken(token: string): Promise<JwtScopes[]> {
         return Promise.resolve([]);
     }
 
