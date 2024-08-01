@@ -120,8 +120,12 @@ describe('CustomJwtService', () => {
 
             await expect(service.refreshAccessToken('refreshToken')).rejects.toThrow(InternalServerErrorException);
         });
+    });
 
-        
+    describe('getScopesFromToken()', () => {
+        it('should be implemented', async () => {
+            throw new Error('Not implemented');
+        });
     });
 
     describe('_verifyToken()', () => {
