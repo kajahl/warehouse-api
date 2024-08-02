@@ -1,37 +1,34 @@
-import { IsEmail, IsEmpty, IsEnum, IsOptional, IsString, Length } from "class-validator";
+import { IsEmpty, IsEnum, IsOptional, IsString, Length } from "class-validator";
 import { UpdateUser } from "../../types/User";
 import { UserRole } from "../../types/UserRole";
 import { IsPermissions } from "src/utils/validators/isPermissions.validator";
 import { Permissions } from "src/models/types/UserPermissions";
 
-export default class UpdateUserDto implements UpdateUser {
-    @IsString()
+export default class SelfUpdateUserDto implements UpdateUser {
+    @IsEmpty()
     @IsOptional()
-    @Length(1, 20)
-    firstName: string;
+    firstName: string; // Cannot be updated in this context
+
+    @IsEmpty()
+    @IsOptional()
+    lastName: string; // Cannot be updated in this context
 
     @IsString()
-    @IsOptional()
-    @Length(1, 20)
-    lastName: string;
-
-    @IsString()
-    @IsOptional()
     @Length(1, 20)
     profileName: string;
 
-    @IsEmail()
-    @IsOptional()
-    email: string;
-
-    @IsOptional()
     @IsEmpty()
+    @IsOptional()
+    email: string; // Cannot be updated in this context
+
+    @IsEmpty()
+    @IsOptional()
     password: string; // Cannot be updated in this context
 
     @IsOptional()
-    @IsEmpty()
+    @IsEmpty() 
     roles: UserRole[]; // Cannot be updated in this context
-    
+
     @IsOptional()
     @IsEmpty() 
     permissions: Permissions[]; // Cannot be updated in this context
