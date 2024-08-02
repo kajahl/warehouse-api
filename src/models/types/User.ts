@@ -1,5 +1,6 @@
 import { DatabaseId } from "./Database"
-import { Permissions, UserRole } from "./UserRole";
+import { Permissions } from "./UserPermissions";
+import { UserRole } from "./UserRole";
 
 export type User = DatabaseId & {
     firstName: string;

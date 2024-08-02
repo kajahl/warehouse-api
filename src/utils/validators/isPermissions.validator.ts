@@ -5,7 +5,6 @@ import {
     ValidatorConstraint,
     ValidatorConstraintInterface
   } from 'class-validator';
-import { OtherPermissionsPlaceholder, UserRelatedPermissions } from 'src/models/types/UserRole';
   
   @ValidatorConstraint({ async: false })
   export class IsPermissionsConstraint implements ValidatorConstraintInterface {

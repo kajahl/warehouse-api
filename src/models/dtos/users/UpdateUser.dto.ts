@@ -1,7 +1,8 @@
 import { IsEmpty, IsEnum, IsOptional, IsString, Length } from "class-validator";
 import { UpdateUser } from "../../types/User";
-import { Permissions, UserRole } from "../../types/UserRole";
+import { UserRole } from "../../types/UserRole";
 import { IsPermissions } from "src/utils/validators/isPermissions.validator";
+import { Permissions } from "src/models/types/UserPermissions";
 
 export default class UpdateUserDto implements UpdateUser {
     @IsEmpty()

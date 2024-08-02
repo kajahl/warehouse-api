@@ -11,10 +11,11 @@ import {
     UseGuards,
 } from '@nestjs/common';
 import { RolesService } from '../../services/roles/roles.service';
-import { RoleRelatedPermissions, UserRole } from 'src/models/types/UserRole';
+import { UserRole } from 'src/models/types/UserRole';
 import { UseScopeGuard } from 'src/utils/decorators/UseScopeGuards.decorator';
 import { ScopeGuard } from 'src/utils/guards/scope/Scope.guard';
 import { IsAuthenticatedGuard } from 'src/utils/guards/session/IsAuthenticated.guard';
+import { RoleRelatedPermissions } from 'src/models/types/UserPermissions';
 
 @Controller('roles')
 export class RolesController {

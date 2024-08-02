@@ -1,6 +1,7 @@
 import { BeforeInsert, Column, Entity, ObjectId, ObjectIdColumn, PrimaryGeneratedColumn, Unique } from "typeorm";
 import { User } from "../types/User";
-import { Permissions, UserRole } from "../types/UserRole";
+import { UserRole } from "../types/UserRole";
+import { Permissions } from "../types/UserPermissions";
 
 @Entity()
 @Unique(['email'])

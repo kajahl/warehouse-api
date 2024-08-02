@@ -2,7 +2,8 @@
 
 import { Reflector } from "@nestjs/core";
 import { JwtScopes } from "src/models/types/Jwt";
-import { Permissions, UserRole } from "src/models/types/UserRole";
+import { Permissions } from "src/models/types/UserPermissions";
+import { UserRole } from "src/models/types/UserRole";
 
 export type GuardScopes = {
     roles?: UserRole[];

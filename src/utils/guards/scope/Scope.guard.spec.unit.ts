@@ -5,13 +5,11 @@ import { CustomJwtService } from 'src/modules/auth/services/custom-jwt/custom-jw
 import { Test, TestingModule } from '@nestjs/testing';
 import { User } from 'src/models/types/User';
 import {
-    DoNotAssignThisPermissionsToRoleOrUser,
-    Permissions,
-    UserRelatedPermissions,
     UserRole,
     UserRoleToPermissionsMap,
 } from 'src/models/types/UserRole';
 import { JwtTestScopes } from 'src/models/types/Jwt';
+import { DoNotAssignThisPermissionsToRoleOrUser, UserRelatedPermissions } from 'src/models/types/UserPermissions';
 
 function createMockExecutionContext(
     user: Omit<User, 'password'> | undefined = undefined,
