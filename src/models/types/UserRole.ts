@@ -15,7 +15,11 @@ export enum UserRelatedPermissions {
 
 export enum OtherPermissionsPlaceholder {}
 
-export type Permissions = UserRelatedPermissions | OtherPermissionsPlaceholder;
+export enum DoNotAssignThisPermissionsToRoleOrUser {
+    INVALID_FOR_TESTING = 'invalid_for_testing',
+}
+
+export type Permissions = UserRelatedPermissions | OtherPermissionsPlaceholder | DoNotAssignThisPermissionsToRoleOrUser;
 
 export const UserRoleToPermissionsMap : { [key in UserRole]: Permissions[] } = {
     [UserRole.ADMIN]: [
