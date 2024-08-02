@@ -4,6 +4,7 @@ export enum UserRelatedPermissions {
     CREATE_USER = 'urp_create_user',
     READ_USERS = 'urp_read_users',
     UPDATE_USER = 'urp_update_user',
+    UPDATE_USER_PASSWORD = 'urp_update_user_password',
     DELETE_USER = 'urp_delete_user',
     ADD_USER_ROLE = 'urp_add_user_role',
     DELETE_USER_ROLE = 'urp_delete_user_role',
