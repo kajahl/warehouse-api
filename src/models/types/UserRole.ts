@@ -13,13 +13,23 @@ export enum UserRelatedPermissions {
     DELETE_USER_ROLE = 'urp_delete_user_role',
 }
 
+export enum RoleRelatedPermissions {
+    CHECK_ROLE_PERMISSIONS = 'rrp_check_role_permissions',
+    ASSIGN_ROLE = 'rrp_assign_role',
+    REMOVE_ROLE = 'rrp_remove_role',
+}
+
 export enum OtherPermissionsPlaceholder {}
 
 export enum DoNotAssignThisPermissionsToRoleOrUser {
     INVALID_FOR_TESTING = 'invalid_for_testing',
 }
 
-export type Permissions = UserRelatedPermissions | OtherPermissionsPlaceholder | DoNotAssignThisPermissionsToRoleOrUser;
+export type Permissions = 
+    UserRelatedPermissions | 
+    OtherPermissionsPlaceholder | 
+    RoleRelatedPermissions |
+    DoNotAssignThisPermissionsToRoleOrUser;
 
 export const UserRoleToPermissionsMap : { [key in UserRole]: Permissions[] } = {
     [UserRole.ADMIN]: [
