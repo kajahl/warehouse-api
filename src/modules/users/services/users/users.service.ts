@@ -61,7 +61,7 @@ export class UsersService {
             .findById(id)
             .then((user) => {
                 if (!user) throw new CustomError(ErrorCodes.NOT_FOUND, 'User not found');
-                return user; // TODO Serialize
+                return user;
             })
             .catch((err) => {
                 if (VERBOSE) console.warn(err);
@@ -90,7 +90,7 @@ export class UsersService {
         return await this.userRepository
             .updateOne(id, updateUser)
             .then((user) => {
-                return user; // TODO Serialize
+                return user;
             })
             .catch((err: any) => {
                 if (VERBOSE) console.warn(err);
@@ -108,7 +108,7 @@ export class UsersService {
      * Updates a user's password by ID.
      * @param id - The ID of the user to update.
      * @param updatePassword - The new password data.
-     * @returns The result of the update operation.
+     * @returns True if the password was updated.
      * @throws BadRequestException if the passwords do not match.
      * @throws InternalServerErrorException for other errors.
      */
