@@ -31,3 +31,10 @@ export type Permissions =
     OtherPermissionsPlaceholder | 
     RoleRelatedPermissions |
     DoNotAssignThisPermissionsToRoleOrUser;
+
+export const PermissionsValues = [
+    ...Object.values(UserRelatedPermissions), 
+    ...Object.values(RoleRelatedPermissions),
+    ...Object.values(OtherPermissionsPlaceholder),
+    ...Object.values(DoNotAssignThisPermissionsToRoleOrUser),
+];
