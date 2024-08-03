@@ -146,7 +146,7 @@ export class UsersController {
 
         // Verify if somebody is not trying to delete user with more important role
         const userToUpdate = await this.usersService.findById(id);
-        if (RolesResolver.compareUsersRolesPriority(user, userToUpdate) <= 0)
+        if (userToUpdate.roles.length !== 0 && RolesResolver.compareUsersRolesPriority(user, userToUpdate) <= 0)
             throw new BadRequestException('You cannot delete a user with a higher or equal role than yours');
 
         confirm = confirm ?? false;
