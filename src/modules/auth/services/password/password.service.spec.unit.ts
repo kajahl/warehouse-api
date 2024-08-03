@@ -50,7 +50,7 @@ describe('PasswordService', () => {
                 'Pa$w1', // 5
             ];
             wrongPasswords.forEach((password) => {
-                expect(() => service.validatePassword(password)).toThrow(BadRequestException);
+                expect(service.validatePassword(password)).toBe(false);
             });
             
             const correctPasswords = [
@@ -58,7 +58,7 @@ describe('PasswordService', () => {
                 'Password123!',
             ];
             correctPasswords.forEach((password) => {
-                expect(() => service.validatePassword(password)).not.toThrow();
+                expect(service.validatePassword(password)).toBe(true)
             });
         });
     });

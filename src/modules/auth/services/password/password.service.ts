@@ -13,7 +13,12 @@ export class PasswordService {
         return bcrypt.compareSync(password, hash);
     }
 
-    validatePassword(password: string) {
+    /**
+     * Validate a password.
+     * @param password - The password to validate.
+     * @returns True if the password is valid (meets the requirements), false otherwise.
+     */
+    validatePassword(password: string) : boolean {
         const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
         // At least one lowercase letter
         // At least one uppercase letter
@@ -21,7 +26,7 @@ export class PasswordService {
         // At least one special character
         // At least 8 characters
         if (!passwordRegex.test(password))
-            throw new BadRequestException('Password does not meet complexity requirements');
+            return false;
         return true;
     }
 }
