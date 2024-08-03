@@ -24,7 +24,7 @@ import ChangePasswordDto from 'src/models/dtos/users/ChangePassword.dto';
 import { IsAuthenticatedGuard } from 'src/utils/guards/session/IsAuthenticated.guard';
 import { AdminAccessSerializedUser, PublicAccessSerializedUser } from 'src/utils/serializers/User.serializer';
 import { AuthUser } from 'src/utils/decorators/AuthUser.decorator';
-import { User } from 'src/models/types/User';
+import { User, UserWithoutPassword } from 'src/models/types/User';
 import { UseScopeGuard } from 'src/utils/decorators/UseScopeGuards.decorator';
 import { UserRole } from 'src/models/types/UserRole';
 import { UserRelatedPermissions } from 'src/models/types/UserPermissions';
@@ -41,20 +41,20 @@ export class UsersController {
     @Get('me')
     @UseGuards(IsAuthenticatedGuard)
     async findLoggedUser(
-        @AuthUser() user: User, //TODO: Make sure session serializer will return the user object
+        @AuthUser() user: UserWithoutPassword,
     ) {
         return new AdminAccessSerializedUser(user);
     }
 
     @Put('me')
     @UseGuards(IsAuthenticatedGuard)
-    async updateOwnUser(@AuthUser() user: User, @Body() body: SelfUpdateUserDto) {
+    async updateOwnUser(@AuthUser() user: UserWithoutPassword, @Body() body: SelfUpdateUserDto) {
         return this.usersService.update(user.id, body).then((user) => new AdminAccessSerializedUser(user));
     }
 
     @Patch('me/password')
     @UseGuards(IsAuthenticatedGuard)
-    async changeOwnPassword(@AuthUser() user: User, @Body() body: ChangePasswordDto) {
+    async changeOwnPassword(@AuthUser() user: UserWithoutPassword, @Body() body: ChangePasswordDto) {
         if (body.password !== body.confirmPassword) throw new BadRequestException('Passwords do not match');
         return this.usersService.updatePassword(user.id, body);
     }
@@ -100,7 +100,7 @@ export class UsersController {
     @Put(':id')
     @UseGuards(ScopeGuard)
     @UseScopeGuard([{ roles: [UserRole.ADMIN] }, { permissions: [UserRelatedPermissions.UPDATE_USER] }])
-    async update(@Param('id', ParseIntPipe) id: number, @Body() body: UpdateUserDto, @AuthUser() user: User) {
+    async update(@Param('id', ParseIntPipe) id: number, @Body() body: UpdateUserDto, @AuthUser() user: UserWithoutPassword) {
         // Verify if somebody is not trying to update his own data
         if (user.id === id) throw new BadRequestException('You cannot update your own data using this endpoint');
 
@@ -118,7 +118,7 @@ export class UsersController {
     async changePassword(
         @Param('id', ParseIntPipe) id: number,
         @Body() body: ChangePasswordDto,
-        @AuthUser() user: User,
+        @AuthUser() user: UserWithoutPassword,
     ) {
         // Verify if somebody is not trying to change his own password
         if (user.id === id) throw new BadRequestException('You cannot update your own password using this endpoint');
@@ -139,7 +139,7 @@ export class UsersController {
     async remove(
         @Param('id', ParseIntPipe) id: number,
         @Query('confirm', new ParseBoolPipe({ optional: true })) confirm: boolean,
-        @AuthUser() user: User,
+        @AuthUser() user: UserWithoutPassword,
     ) {
         // Verify if somebody is not trying to delete his own account
         if (user.id === id) throw new BadRequestException('You cannot update your own data using this endpoint');

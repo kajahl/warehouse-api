@@ -15,3 +15,5 @@ export type User = DatabaseId & {
 export type CreateUser = Omit<User, 'id'>;
 export type RegisterUser = Omit<User, 'id' | 'roles' | 'permissions'>;
 export type UpdateUser = Partial<Omit<User, 'id'>>;
+
+export type UserWithoutPassword = Omit<User, 'password'>;

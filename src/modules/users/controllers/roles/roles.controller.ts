@@ -18,7 +18,7 @@ import { ScopeGuard } from 'src/utils/guards/scope/Scope.guard';
 import { IsAuthenticatedGuard } from 'src/utils/guards/session/IsAuthenticated.guard';
 import { RoleRelatedPermissions } from 'src/models/types/UserPermissions';
 import { AuthUser } from 'src/utils/decorators/AuthUser.decorator';
-import { User } from 'src/models/types/User';
+import { User, UserWithoutPassword } from 'src/models/types/User';
 import RolesResolver from 'src/utils/helpers/RolesResolver';
 import { UsersService } from '../../services/users/users.service';
 
@@ -72,7 +72,7 @@ export class RolesController {
     async addUserToRole(
         @Param('userId', ParseIntPipe) userId: number,
         @Param('roleName', new ParseEnumPipe(UserRole)) role: UserRole,
-        @AuthUser() user: User,
+        @AuthUser() user: UserWithoutPassword,
     ) {
         // Verify if somebody is not trying to assign role higher or equal to his own role
         if(RolesResolver.compareUsersRolesPriority(user, { roles: [role] }) <= 0) 
@@ -92,7 +92,7 @@ export class RolesController {
     async removeUserFromRole(
         @Param('userId', ParseIntPipe) userId: number,
         @Param('roleName', new ParseEnumPipe(UserRole)) role: UserRole,
-        @AuthUser() user: User,
+        @AuthUser() user: UserWithoutPassword,
     ) {
         
         // Verify if somebody is not trying to assign role higher or equal to his own role
