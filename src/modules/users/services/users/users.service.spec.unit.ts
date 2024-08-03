@@ -6,9 +6,11 @@ import { UserRole } from 'src/models/types/UserRole';
 import { UserRepository } from 'src/models/repositories/user/User.repository';
 import { BadRequestException, ConflictException, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import ChangePasswordDto from 'src/models/dtos/users/ChangePassword.dto';
+import { PasswordService } from 'src/modules/auth/services/password/password.service';
 
 describe('UsersService', () => {
     let service: UsersService;
+    let passwordService: PasswordService;
     let userRepository: UserRepository;
 
     const createUser: CreateUser = {
@@ -40,10 +42,17 @@ describe('UsersService', () => {
                         deleteOne: jest.fn(),
                     },
                 },
+                {
+                    provide: PasswordService,
+                    useValue: {
+                        validatePassword: jest.fn(),
+                    }
+                }
             ],
         }).compile();
 
         service = module.get<UsersService>(UsersService);
+        passwordService = module.get<PasswordService>(PasswordService);
         userRepository = module.get<UserRepository>(UserRepository);
     });
 
@@ -53,18 +62,26 @@ describe('UsersService', () => {
 
     describe('create()', () => {
         it('should create a new user', async () => {
+            jest.spyOn(passwordService, 'validatePassword').mockReturnValue(true);
             jest.spyOn(userRepository, 'createOne').mockResolvedValue(createdUser);
             expect(await service.create(createUser)).toEqual(createdUser);
         });
 
-        it('should handle duplicate email error', async () => {
+        it('should throw conflict exception in duplicate email case', async () => {
+            jest.spyOn(passwordService, 'validatePassword').mockReturnValue(true);
             jest.spyOn(userRepository, 'createOne').mockRejectedValue(
                 new CustomError(ErrorCodes.DUPLICATE_POSTGRES_ERROR_CODE),
             );
             await expect(service.create(createUser)).rejects.toThrow(ConflictException);
         });
+        
+        it('should throw bad request exception error exception if password does not meet requirements', async () => {
+            jest.spyOn(passwordService, 'validatePassword').mockReturnValue(false);
+            await expect(service.create(createUser)).rejects.toThrow(BadRequestException);
+        });
 
         it('should throw internal server error exception if error is unknown', async () => {
+            jest.spyOn(passwordService, 'validatePassword').mockReturnValue(true);
             jest.spyOn(userRepository, 'createOne').mockRejectedValue(new Error());
             await expect(service.create(createUser)).rejects.toThrow(InternalServerErrorException);
         });
@@ -146,6 +163,7 @@ describe('UsersService', () => {
         }
 
         it('should update a user password by ID', async () => {
+            jest.spyOn(passwordService, 'validatePassword').mockReturnValue(true);
             jest.spyOn(userRepository, 'updatePassword').mockResolvedValue({} as any as User);
             expect(await service.updatePassword(createdUser.id, updatePasswordDto)).toEqual(true);
         });
@@ -155,15 +173,23 @@ describe('UsersService', () => {
                 password: 'password_updated',
                 confirmPassword: 'not_matching_password',
             }
+            jest.spyOn(passwordService, 'validatePassword').mockReturnValue(true);
             await expect(service.updatePassword(createdUser.id, incorrectUpdatePasswordDto)).rejects.toThrow(BadRequestException);
         });
 
+        it('should throw BadRequestException if password does not meet the requrements', async () => {
+            jest.spyOn(passwordService, 'validatePassword').mockReturnValue(false);
+            await expect(service.updatePassword(createdUser.id, updatePasswordDto)).rejects.toThrow(BadRequestException);
+        });
+
         it('should throw NotFoundException if user is not found', async () => {
+            jest.spyOn(passwordService, 'validatePassword').mockReturnValue(true);
             jest.spyOn(userRepository, 'updatePassword').mockRejectedValue(new CustomError(ErrorCodes.NOT_FOUND));
             await expect(service.updatePassword(createdUser.id, updatePasswordDto)).rejects.toThrow(NotFoundException);
         });
 
         it('should throw InternalServerErrorException if error is unknown', async () => {
+            jest.spyOn(passwordService, 'validatePassword').mockReturnValue(true);
             jest.spyOn(userRepository, 'updatePassword').mockRejectedValue(new Error());
             await expect(service.updatePassword(createdUser.id, updatePasswordDto)).rejects.toThrow(InternalServerErrorException);
         });

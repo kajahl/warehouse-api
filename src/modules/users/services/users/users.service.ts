@@ -11,12 +11,14 @@ import ChangePasswordDto from 'src/models/dtos/users/ChangePassword.dto';
 import { VERBOSE } from 'src/utils/consts';
 import { UserRepository } from 'src/models/repositories/user/User.repository';
 import CustomError, { ErrorCodes } from 'src/utils/errors/Custom.error';
+import { PasswordService } from 'src/modules/auth/services/password/password.service';
 
 @Injectable()
 export class UsersService {
-    constructor(@Inject() private userRepository: UserRepository) {}
-
-    private readonly DUPLICATE_POSTGRES_ERROR_CODE = '23505';
+    constructor(
+        private readonly userRepository: UserRepository,
+        private readonly passwordService: PasswordService
+    ) {}
 
     /**
      * Create a new user.
@@ -24,6 +26,8 @@ export class UsersService {
      * @returns The created user.
      */
     async create(createUser: CreateUser) {
+        if (!this.passwordService.validatePassword(createUser.password))
+            throw new BadRequestException('Password does not meet requirements');
         const user = this.userRepository.createOne(createUser).catch((err: any) => {
             if (VERBOSE) console.warn(err);
             if (err instanceof CustomError && err.code === ErrorCodes.DUPLICATE_POSTGRES_ERROR_CODE)
@@ -115,6 +119,8 @@ export class UsersService {
     async updatePassword(id: number, updatePassword: ChangePasswordDto) {
         if (updatePassword.password !== updatePassword.confirmPassword)
             throw new BadRequestException('Passwords do not match');
+        if (!this.passwordService.validatePassword(updatePassword.password))
+            throw new BadRequestException('Password does not meet requirements');
         await this.userRepository.updatePassword(id, updatePassword.password).catch((err: any) => {
             if (VERBOSE) console.warn(err);
             if (err instanceof CustomError && err.code === ErrorCodes.NOT_FOUND)
