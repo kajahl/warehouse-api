@@ -1,6 +1,6 @@
-import { User } from "src/models/types/User";
-import { UserRelatedPermissions } from "src/models/types/UserPermissions";
-import { UserRole, UserRolePriority } from "src/models/types/UserRole";
+import { User } from 'src/models/types/User';
+import { UserRelatedPermissions } from 'src/models/types/UserPermissions';
+import { UserRole, UserRolePriority } from 'src/models/types/UserRole';
 
 export default class RolesResolver {
     private static UserRoleToPermissionsMap: { [key in UserRole]: string[] } = {
@@ -12,12 +12,29 @@ export default class RolesResolver {
             UserRelatedPermissions.ADD_USER_ROLE,
             UserRelatedPermissions.DELETE_USER_ROLE,
         ],
-        [UserRole.USER]: [
-            UserRelatedPermissions.READ_USERS,
-        ],
+        [UserRole.USER]: [UserRelatedPermissions.READ_USERS],
         [UserRole.BANNED]: [],
+    };
+
+    /**
+     * Check if the provided role has the specified permission.
+     * @param role Role to check
+     * @param permission Permission to check for
+     * @returns True if the role has the permission, false otherwise
+     * @example
+     * const hasPermission = RolesResolver.hasPermission(UserRole.ADMIN, UserRelatedPermissions.CREATE_USER);
+     * console.log(hasPermission); // Output: true
+     */
+    static hasPermission(role: UserRole, permission: string): boolean {
+        const permissions = this.UserRoleToPermissionsMap[role];
+        return permissions.includes(permission);
     }
 
+    /**
+     * Get permissions for the provided role.
+     * @param role Role for which permissions should be fetched
+     * @returns Array of permissions for the provided role
+     */
     static getRolePermissions(role: UserRole): string[] {
         return this.UserRoleToPermissionsMap[role];
     }
@@ -38,9 +55,9 @@ export default class RolesResolver {
      * console.log(result); // Output: UserRole.MODERATOR
      */
     static getHighestRole(roles: UserRole[]): UserRole {
-        const maxPriority = roles.length > 0 ? Math.max(...roles.map(role => UserRolePriority[role])) : -1;
-        if(maxPriority === -1) throw new Error('No roles provided');
-        return roles.find(role => UserRolePriority[role] === maxPriority) as UserRole;
+        const maxPriority = roles.length > 0 ? Math.max(...roles.map((role) => UserRolePriority[role])) : -1;
+        if (maxPriority === -1) throw new Error('No roles provided');
+        return roles.find((role) => UserRolePriority[role] === maxPriority) as UserRole;
     }
 
     /**
@@ -48,12 +65,12 @@ export default class RolesResolver {
      * @param firstRole First role
      * @param secondRole Second role
      * @returns Difference between the priority of the first and the second role. It will be negative if the first role has lower priority, positive if the first role has higher priority, and 0 if both roles have the same priority.
-     * @example 
+     * @example
      * // Assuming UserRolePriority is an enum with values:
      * // UserRolePriority.ADMIN = 3, UserRolePriority.USER = 1
      * const result = RolesResolver.compareRolesPriority(UserRole.ADMIN, UserRole.USER);
      * console.log(result); // Output: 2
-     * @example 
+     * @example
      * const result = RolesResolver.compareRolesPriority(UserRole.USER, UserRole.USER);
      * console.log(result); // Output: 0
      */
@@ -65,10 +82,10 @@ export default class RolesResolver {
 
     /**
      * Compare two users by their highest role priority.
-     * @param firstUser First user 
+     * @param firstUser First user
      * @param secondUser Second user
      * @returns Difference between the priority of roles. It will be negative if the first role has lower priority, positive if the first role has higher priority, and 0 if both roles have the same priority.
-     * @example 
+     * @example
      * // Assuming UserRolePriority is an enum with values:
      * // UserRolePriority.ADMIN = 3
      * // UserRolePriority.MODERATOR = 2
@@ -81,7 +98,7 @@ export default class RolesResolver {
      *  roles: [UserRole.USER]
      * });
      * console.log(result); // Output: 1
-     * @example 
+     * @example
      * const result = RolesResolver.compareRolesPriority({
      *  ...
      *  roles: [UserRole.ADMIN, UserRole.MODERATOR]
@@ -96,5 +113,4 @@ export default class RolesResolver {
         const secondUserRole = RolesResolver.getHighestRole(secondUser.roles);
         return this.compareRolesPriority(firstUserRole, secondUserRole);
     }
-
 }

@@ -6,6 +6,12 @@ export enum UserRole {
     BANNED = 'banned',
 }
 
+export const UserRolePriority : { [key in UserRole]: number } = {
+    [UserRole.ADMIN]: 999,
+    [UserRole.USER]: 10,
+    [UserRole.BANNED]: 0,
+}
+
 export const UserRoleToPermissionsMap : { [key in UserRole]: Permissions[] } = {
     [UserRole.ADMIN]: [
         UserRelatedPermissions.CREATE_USER,
