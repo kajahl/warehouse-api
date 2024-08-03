@@ -17,3 +17,11 @@ export type RegisterUser = Omit<User, 'id' | 'roles' | 'permissions'>;
 export type UpdateUser = Partial<Omit<User, 'id'>>;
 
 export type UserWithoutPassword = Omit<User, 'password'>;
+
+export type ChangePassword = {
+    password: string;
+    confirmPassword: string;
+}
+export type SelfChangePassword = ChangePassword & {
+    currentPassword: string;
+}
