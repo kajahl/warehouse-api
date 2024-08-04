@@ -12,6 +12,7 @@ import { AdminAccessSerializedUser, PublicAccessSerializedUser } from 'src/utils
 import { plainToInstance } from 'class-transformer';
 import { UserRelatedPermissions } from 'src/models/types/UserPermissions';
 import ChangePasswordDto from 'src/models/dtos/users/ChangePassword.dto';
+import SelfChangePasswordDto from 'src/models/dtos/users/SelfChangePassword.dto';
 
 describe('UsersController', () => {
     let controller: UsersController;
@@ -439,14 +440,14 @@ describe('UsersController', () => {
     });
 
     describe('PATCH /me/password', () => {
+        const updatedValues : SelfChangePasswordDto = {
+            currentPassword: 'password',
+            password: 'newPassword',
+            confirmPassword: 'newPassword',
+        }
+
         it('should update password of logged user', async () => {
             jest.spyOn(authGuard, 'canActivate').mockImplementationOnce(() => Promise.resolve(true));
-
-            const updatedValues : ChangePasswordDto = {
-                password: 'newPassword',
-                confirmPassword: 'newPassword',
-            }
-
             jest.spyOn(service, 'updatePassword').mockReturnValue(Promise.resolve(true));
             
             await request(app.getHttpServer())
@@ -455,22 +456,15 @@ describe('UsersController', () => {
                 .expect(200);
         });
 
-        it('should return 400 if confirm is not provided', async () => {
-            jest.spyOn(authGuard, 'canActivate').mockImplementationOnce(() => Promise.resolve(true));
-
-            await request(app.getHttpServer())
-                .patch(`/users/me/password`)
-                .send({})
-                .expect(400);
-        });
-
         it('should return 400 if body is not valid', async () => {
             jest.spyOn(authGuard, 'canActivate').mockImplementationOnce(() => Promise.resolve(true));
 
             await request(app.getHttpServer())
                 .patch(`/users/me/password`)
                 .send({
-                    password: 'password',
+                    password: 'newPassword',
+                    confirmPassword: 'newPassword'
+                    // Without currentPassword
                 })
                 .expect(400);
         });

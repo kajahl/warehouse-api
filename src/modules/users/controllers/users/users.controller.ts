@@ -14,8 +14,6 @@ import {
     BadRequestException,
     UseInterceptors,
     ClassSerializerInterceptor,
-    ValidationPipe,
-    UsePipes,
 } from '@nestjs/common';
 import { UsersService } from '../../services/users/users.service';
 import CreateUserDto from 'src/models/dtos/users/CreateUser.dto';
@@ -31,11 +29,14 @@ import { UserRelatedPermissions } from 'src/models/types/UserPermissions';
 import SelfUpdateUserDto from 'src/models/dtos/users/SelfUpdateUser.dto';
 import RolesResolver from 'src/utils/helpers/RolesResolver';
 import { ScopeGuard } from 'src/utils/guards/scope/Scope.guard';
+import SelfChangePasswordDto from 'src/models/dtos/users/SelfChangePassword.dto';
 
 @Controller('users')
 @UseInterceptors(ClassSerializerInterceptor)
 export class UsersController {
-    constructor(private readonly usersService: UsersService) {}
+    constructor(
+        private readonly usersService: UsersService
+    ) {}
 
     // Own user
     @Get('me')
@@ -54,8 +55,8 @@ export class UsersController {
 
     @Patch('me/password')
     @UseGuards(IsAuthenticatedGuard)
-    async changeOwnPassword(@AuthUser() user: UserWithoutPassword, @Body() body: ChangePasswordDto) {
-        if (body.password !== body.confirmPassword) throw new BadRequestException('Passwords do not match');
+    async changeOwnPassword(@AuthUser() user: UserWithoutPassword, @Body() body: SelfChangePasswordDto) {
+        // SELF Change Password Dto is required because it requires current password
         return this.usersService.updatePassword(user.id, body);
     }
 

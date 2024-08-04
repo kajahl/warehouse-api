@@ -6,8 +6,7 @@ import {
     InternalServerErrorException,
     NotFoundException,
 } from '@nestjs/common';
-import { CreateUser, UpdateUser } from 'src/models/types/User';
-import ChangePasswordDto from 'src/models/dtos/users/ChangePassword.dto';
+import { ChangePassword, CreateUser, SelfChangePassword, UpdateUser } from 'src/models/types/User';
 import { VERBOSE } from 'src/utils/consts';
 import { UserRepository } from 'src/models/repositories/user/User.repository';
 import CustomError, { ErrorCodes } from 'src/utils/errors/Custom.error';
@@ -17,7 +16,7 @@ import { PasswordService } from 'src/modules/auth/services/password/password.ser
 export class UsersService {
     constructor(
         private readonly userRepository: UserRepository,
-        private readonly passwordService: PasswordService
+        private readonly passwordService: PasswordService,
     ) {}
 
     /**
@@ -111,16 +110,27 @@ export class UsersService {
     /**
      * Updates a user's password by ID.
      * @param id - The ID of the user to update.
-     * @param updatePassword - The new password data.
+     * @param updatePassword - The new password data. It requires the current password for self-updates (without it will wont check current user password in database)
      * @returns True if the password was updated.
      * @throws BadRequestException if the passwords do not match.
      * @throws InternalServerErrorException for other errors.
      */
-    async updatePassword(id: number, updatePassword: ChangePasswordDto) {
+    async updatePassword(id: number, updatePassword: ChangePassword | SelfChangePassword) {
         if (updatePassword.password !== updatePassword.confirmPassword)
             throw new BadRequestException('Passwords do not match');
         if (!this.passwordService.validatePassword(updatePassword.password))
             throw new BadRequestException('Password does not meet requirements');
+        if ('currentPassword' in updatePassword) {
+            const user = await this.userRepository.findById(id);
+            if (!this.passwordService.comparePassword(updatePassword.currentPassword, user.password)) {
+                throw new BadRequestException('Current password is incorrect');
+                // TODO: Add to tests
+            }
+            if (updatePassword.currentPassword === updatePassword.password) {
+                throw new BadRequestException('New password cannot be the same as the old one');
+                // TODO: Add to tests
+            }
+        }
         await this.userRepository.updatePassword(id, updatePassword.password).catch((err: any) => {
             if (VERBOSE) console.warn(err);
             if (err instanceof CustomError && err.code === ErrorCodes.NOT_FOUND)
