@@ -5,6 +5,7 @@ import { UserEntity } from '../../entities/User.entity';
 import { Inject } from '@nestjs/common';
 import CustomError, { ErrorCodes } from 'src/utils/errors/Custom.error';
 import { PasswordService } from 'src/modules/auth/services/password/password.service';
+import { UserExceptionMessages } from 'src/utils/exceptions/messages/User.exceptionMessages';
 
 export class UserRepository extends Repository<User> {
     constructor(
@@ -17,7 +18,7 @@ export class UserRepository extends Repository<User> {
     private readonly DUPLICATE_POSTGRES_ERROR_CODE = '23505';
 
     /**
-     *
+     * Returns all users.
      * @returns Array of all users.
      */
     public async findAll(): Promise<User[]> {
@@ -54,7 +55,7 @@ export class UserRepository extends Repository<User> {
         const newUser = this.create(user);
         return this.save(newUser).catch((err) => {
             if (err.code === this.DUPLICATE_POSTGRES_ERROR_CODE)
-                throw new CustomError(ErrorCodes.DUPLICATE_POSTGRES_ERROR_CODE, 'User with this email already exists');
+                throw new CustomError(ErrorCodes.DUPLICATE_POSTGRES_ERROR_CODE, UserExceptionMessages.USER_WITH_THIS_EMAIL_ALREADY_EXISTS);
             throw err;
         });
     }
@@ -70,14 +71,14 @@ export class UserRepository extends Repository<User> {
      */
     public async updateOne(id: number, updateUser: UpdateUser): Promise<User> {
         const user = await this.findById(id);
-        if (!user) throw new CustomError(ErrorCodes.NOT_FOUND, 'User not found');
+        if (!user) throw new CustomError(ErrorCodes.NOT_FOUND, UserExceptionMessages.USER_NOT_FOUND);
         if (updateUser.email) updateUser.email = updateUser.email.toLowerCase();
         if (updateUser.password)
-            throw new CustomError(ErrorCodes.BAD_METHOD, 'Cannot update password using this method');
+            throw new CustomError(ErrorCodes.BAD_METHOD, UserExceptionMessages.CANNOT_UPDATE_PASSWORD_USING_THIS_METHOD);
         Object.assign(user, updateUser);
         return this.save(user).catch((err) => {
             if (err.code === this.DUPLICATE_POSTGRES_ERROR_CODE)
-                throw new CustomError(ErrorCodes.DUPLICATE_POSTGRES_ERROR_CODE, 'User with this email already exists');
+                throw new CustomError(ErrorCodes.DUPLICATE_POSTGRES_ERROR_CODE, UserExceptionMessages.USER_WITH_THIS_EMAIL_ALREADY_EXISTS);
             throw err;
         });
     }
@@ -91,7 +92,7 @@ export class UserRepository extends Repository<User> {
      */
     public async updatePassword(id: number, newPassword: string): Promise<User> {
         const user = await this.findById(id);
-        if (!user) throw new CustomError(ErrorCodes.NOT_FOUND, 'User not found');
+        if (!user) throw new CustomError(ErrorCodes.NOT_FOUND, UserExceptionMessages.USER_NOT_FOUND);
         user.password = this.passwordService.hashPassword(newPassword);
         return this.save(user);
     }
@@ -104,7 +105,7 @@ export class UserRepository extends Repository<User> {
      */
     public async deleteOne(id: number): Promise<true> {
         const user = await this.findById(id);
-        if (!user) throw new CustomError(ErrorCodes.NOT_FOUND, 'User not found');
+        if (!user) throw new CustomError(ErrorCodes.NOT_FOUND, UserExceptionMessages.USER_NOT_FOUND);
         await this.delete(id);
         return true;
     }

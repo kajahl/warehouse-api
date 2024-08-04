@@ -11,6 +11,7 @@ import { VERBOSE } from 'src/utils/consts';
 import { UserRepository } from 'src/models/repositories/user/User.repository';
 import CustomError, { ErrorCodes } from 'src/utils/errors/Custom.error';
 import { PasswordService } from 'src/modules/auth/services/password/password.service';
+import { UserExceptionMessages } from 'src/utils/exceptions/messages/User.exceptionMessages';
 
 @Injectable()
 export class UsersService {
@@ -26,12 +27,12 @@ export class UsersService {
      */
     async create(createUser: CreateUser) {
         if (!this.passwordService.validatePassword(createUser.password))
-            throw new BadRequestException('Password does not meet requirements');
+            throw new BadRequestException(UserExceptionMessages.PASSWORD_DOES_NOT_MEET_REQUIREMENTS);
         const user = this.userRepository.createOne(createUser).catch((err: any) => {
             if (VERBOSE) console.warn(err);
             if (err instanceof CustomError && err.code === ErrorCodes.DUPLICATE_POSTGRES_ERROR_CODE)
                 throw new ConflictException(err.message);
-            throw new InternalServerErrorException('#TODO_CODE_001');
+            throw new InternalServerErrorException(UserExceptionMessages.ERROR_CODE_001);
         });
         return user;
     }
@@ -48,7 +49,7 @@ export class UsersService {
             })
             .catch((err) => {
                 if (VERBOSE) console.warn(err);
-                throw new InternalServerErrorException('#TODO_CODE_006');
+                throw new InternalServerErrorException(UserExceptionMessages.ERROR_CODE_006);
             });
     }
 
@@ -70,7 +71,7 @@ export class UsersService {
                 if (VERBOSE) console.warn(err);
                 if (err instanceof CustomError && err.code === ErrorCodes.NOT_FOUND)
                     throw new NotFoundException(err.message);
-                throw new InternalServerErrorException('#TODO_CODE_002');
+                throw new InternalServerErrorException(UserExceptionMessages.ERROR_CODE_002);
             });
     }
 
@@ -103,7 +104,7 @@ export class UsersService {
                     throw new ConflictException(err.message);
                 if (err instanceof CustomError && err.code === ErrorCodes.NOT_FOUND)
                     throw new NotFoundException(err.message);
-                throw new InternalServerErrorException('#TODO_CODE_003');
+                throw new InternalServerErrorException(UserExceptionMessages.ERROR_CODE_003);
             });
     }
 
@@ -117,23 +118,23 @@ export class UsersService {
      */
     async updatePassword(id: number, updatePassword: ChangePassword | SelfChangePassword) {
         if (updatePassword.password !== updatePassword.confirmPassword)
-            throw new BadRequestException('Passwords do not match');
+            throw new BadRequestException(UserExceptionMessages.PASSWORDS_AND_CONFIRMPASSWORD_DOES_NOT_MATCH);
         if (!this.passwordService.validatePassword(updatePassword.password))
-            throw new BadRequestException('Password does not meet requirements');
+            throw new BadRequestException(UserExceptionMessages.PASSWORD_DOES_NOT_MEET_REQUIREMENTS);
         if ('currentPassword' in updatePassword) {
             const user = await this.userRepository.findById(id);
             if (!this.passwordService.comparePassword(updatePassword.currentPassword, user.password)) {
-                throw new BadRequestException('Current password is incorrect');
+                throw new BadRequestException(UserExceptionMessages.CURRENT_PASSWORD_IS_INCORRECT);
             }
             if (updatePassword.currentPassword === updatePassword.password) {
-                throw new BadRequestException('New password cannot be the same as the old one');
+                throw new BadRequestException(UserExceptionMessages.NEW_PASSWORD_CANNOT_BE_THIS_SAME_AS_OLD_PASSWORD);
             }
         }
         await this.userRepository.updatePassword(id, updatePassword.password).catch((err: any) => {
             if (VERBOSE) console.warn(err);
             if (err instanceof CustomError && err.code === ErrorCodes.NOT_FOUND)
                 throw new NotFoundException(err.message);
-            throw new InternalServerErrorException('#TODO_CODE_004');
+            throw new InternalServerErrorException(UserExceptionMessages.ERROR_CODE_004);
         });
         return true;
     }
@@ -150,7 +151,7 @@ export class UsersService {
             if (VERBOSE) console.warn(err);
             if (err instanceof CustomError && err.code === ErrorCodes.NOT_FOUND)
                 throw new NotFoundException(err.message);
-            throw new InternalServerErrorException('#TODO_CODE_005');
+            throw new InternalServerErrorException(UserExceptionMessages.ERROR_CODE_006);
         });
         return true;
     }
