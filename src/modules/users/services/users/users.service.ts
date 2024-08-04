@@ -124,11 +124,9 @@ export class UsersService {
             const user = await this.userRepository.findById(id);
             if (!this.passwordService.comparePassword(updatePassword.currentPassword, user.password)) {
                 throw new BadRequestException('Current password is incorrect');
-                // TODO: Add to tests
             }
             if (updatePassword.currentPassword === updatePassword.password) {
                 throw new BadRequestException('New password cannot be the same as the old one');
-                // TODO: Add to tests
             }
         }
         await this.userRepository.updatePassword(id, updatePassword.password).catch((err: any) => {

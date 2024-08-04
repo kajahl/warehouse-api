@@ -1,12 +1,14 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { UsersService } from './users.service';
-import { CreateUser, UpdateUser, User } from 'src/models/types/User';
+import { CreateUser, SelfChangePassword, UpdateUser, User } from 'src/models/types/User';
 import CustomError, { ErrorCodes } from 'src/utils/errors/Custom.error';
 import { UserRole } from 'src/models/types/UserRole';
 import { UserRepository } from 'src/models/repositories/user/User.repository';
 import { BadRequestException, ConflictException, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import ChangePasswordDto from 'src/models/dtos/users/ChangePassword.dto';
 import { PasswordService } from 'src/modules/auth/services/password/password.service';
+import SelfUpdateUserDto from 'src/models/dtos/users/SelfUpdateUser.dto';
+import { create } from 'domain';
 
 describe('UsersService', () => {
     let service: UsersService;
@@ -46,6 +48,9 @@ describe('UsersService', () => {
                     provide: PasswordService,
                     useValue: {
                         validatePassword: jest.fn(),
+                        comparePassword: jest.fn().mockImplementation((oldPass: string, newPass: string) => {
+                            return oldPass === newPass;
+                        })
                     }
                 }
             ],
@@ -192,6 +197,44 @@ describe('UsersService', () => {
             jest.spyOn(passwordService, 'validatePassword').mockReturnValue(true);
             jest.spyOn(userRepository, 'updatePassword').mockRejectedValue(new Error());
             await expect(service.updatePassword(createdUser.id, updatePasswordDto)).rejects.toThrow(InternalServerErrorException);
+        });
+
+        // Self-user paths (/me/...)
+        
+        const selfUpdatePasswordDto : Omit<SelfChangePassword, 'currentPassword'> = {
+            password: 'newPassword',
+            confirmPassword: 'newPassword'
+        }
+        
+        it('should update a self-user password', async () => {
+            jest.spyOn(userRepository, 'findById').mockResolvedValue(createdUser);
+            jest.spyOn(passwordService, 'validatePassword').mockReturnValue(true);
+            jest.spyOn(userRepository, 'updatePassword').mockResolvedValue({} as any as User);
+            expect(await service.updatePassword(createdUser.id, {
+                ...selfUpdatePasswordDto,
+                currentPassword: createdUser.password
+            })).toEqual(true);
+        });
+
+        it('should throw bad request exception if currentPassword does not match', async () => {
+            jest.spyOn(userRepository, 'findById').mockResolvedValue(createdUser);
+            jest.spyOn(passwordService, 'validatePassword').mockReturnValue(true);
+            jest.spyOn(userRepository, 'updatePassword').mockResolvedValue({} as any as User);
+            await expect(service.updatePassword(createdUser.id, {
+                ...selfUpdatePasswordDto,
+                currentPassword: 'badPassword'
+            })).rejects.toThrow(BadRequestException)
+        });
+
+        it('should throw bad request exception if newPassword is equal currentPassword', async () => {
+            jest.spyOn(userRepository, 'findById').mockResolvedValue(createdUser);
+            jest.spyOn(passwordService, 'validatePassword').mockReturnValue(true);
+            jest.spyOn(userRepository, 'updatePassword').mockResolvedValue({} as any as User);
+            await expect(service.updatePassword(createdUser.id, {
+                currentPassword: createdUser.password,
+                password: createdUser.password,
+                confirmPassword: createdUser.password,
+            })).rejects.toThrow(BadRequestException)
         });
     });
 
