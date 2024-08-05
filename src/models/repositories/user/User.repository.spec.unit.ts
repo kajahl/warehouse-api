@@ -138,7 +138,7 @@ describe('UserRepository', () => {
             jest.spyOn(repository, 'save').mockImplementation(repoSaveUserSuccess);
 
             const updateUser : Partial<User> = { firstName: 'Jane' };
-            const updatedUser = await repository.updateOne(mockUserId, updateUser);
+            const updatedUser = await repository.updateOne(mockUserId, updateUser as any);
             expect(updatedUser).toEqual(expect.objectContaining({ ...createdUser, ...updateUser }));
         });
 
@@ -158,7 +158,7 @@ describe('UserRepository', () => {
             jest.spyOn(repository, 'findById').mockResolvedValue(createdUser);
 
             try {
-                await repository.updateOne(mockUserId, { password: 'newPassword' });
+                await repository.updateOne(mockUserId, { password: 'newPassword' } as any);
                 fail();
             } catch (error) {
                 expect(error).toBeInstanceOf(CustomError);

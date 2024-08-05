@@ -1,10 +1,8 @@
-import { IsEmail, IsEmpty, IsEnum, IsOptional, IsString, Length } from "class-validator";
+import { IsEmail, IsEmpty, IsEnum, IsOptional, IsString, Length, ValidateIf } from "class-validator";
 import { UpdateUser } from "../../types/User";
-import { UserRole } from "../../types/UserRole";
-import { IsPermissions } from "src/utils/validators/isPermissions.validator";
-import { Permissions } from "src/models/types/UserPermissions";
+import { DTO } from "src/models/types/Dtos";
 
-export default class UpdateUserDto implements UpdateUser {
+export default class UpdateUserDto implements DTO<UpdateUser> {
     @IsString()
     @IsOptional()
     @Length(1, 20)
@@ -24,15 +22,15 @@ export default class UpdateUserDto implements UpdateUser {
     @IsOptional()
     email: string;
 
-    @IsOptional()
-    @IsEmpty()
-    password: string; // Cannot be updated in this context
+    @ValidateIf((o) => o.password !== undefined)
+    @IsEmpty({ message: 'Password cannot be updated in this context' })
+    password: never; // Cannot be updated in this context
 
-    @IsOptional()
-    @IsEmpty()
-    roles: UserRole[]; // Cannot be updated in this context
-    
-    @IsOptional()
-    @IsEmpty() 
-    permissions: Permissions[]; // Cannot be updated in this context
+    @ValidateIf((o) => o.roles !== undefined)
+    @IsEmpty({ message: 'Roles cannot be updated in this context' })
+    roles: never; // Cannot be updated in this context
+
+    @ValidateIf((o) => o.permissions !== undefined)
+    @IsEmpty({ message: 'Permissions cannot be updated in this context' })
+    permissions: never; // Cannot be updated in this context
 }

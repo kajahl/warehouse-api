@@ -73,7 +73,7 @@ export class UserRepository extends Repository<User> {
         const user = await this.findById(id);
         if (!user) throw new CustomError(ErrorCodes.NOT_FOUND, UserExceptionMessages.USER_NOT_FOUND);
         if (updateUser.email) updateUser.email = updateUser.email.toLowerCase();
-        if (updateUser.password)
+        if ('password' in updateUser) // DTO should not allow to update password, but just in case
             throw new CustomError(ErrorCodes.BAD_METHOD, UserExceptionMessages.CANNOT_UPDATE_PASSWORD_USING_THIS_METHOD);
         Object.assign(user, updateUser);
         return this.save(user).catch((err) => {
