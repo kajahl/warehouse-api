@@ -3,10 +3,11 @@ import { RolesService } from './roles.service';
 import { UsersModule } from '../../users.module';
 import { getDataSourceToken, TypeOrmModule } from '@nestjs/typeorm';
 import { UserEntity } from 'src/models/entities/User.entity';
-import { UserRole, UserRoleToPermissionsMap } from 'src/models/types/UserRole';
+import { UserRole } from 'src/models/types/UserRole';
 import { DataSource } from 'typeorm';
 import { CreateUser } from 'src/models/types/User';
 import { UsersService } from '../users/users.service';
+import RolesResolver from 'src/utils/helpers/RolesResolver';
 
 describe('RolesService', () => {
     let service: RolesService;
@@ -121,10 +122,10 @@ describe('RolesService', () => {
     describe('findRolePermissions()', () => {
         it('should return all permissions for a given role', () => {
             expect(service.findRolePermissions(UserRole.ADMIN)).toEqual(
-                expect.arrayContaining(UserRoleToPermissionsMap[UserRole.ADMIN]),
+                expect.arrayContaining(RolesResolver.getRolePermissions(UserRole.ADMIN)),
             );
             expect(service.findRolePermissions(UserRole.USER)).toEqual(
-                expect.arrayContaining(UserRoleToPermissionsMap[UserRole.USER]),
+                expect.arrayContaining(RolesResolver.getRolePermissions(UserRole.USER)),
             );
             expect(service.findRolePermissions(UserRole.BANNED)).toEqual([]);
         });

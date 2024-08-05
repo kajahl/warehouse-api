@@ -4,12 +4,10 @@ import { ScopeGuard } from './scope.guard';
 import { CustomJwtService } from 'src/modules/auth/services/custom-jwt/custom-jwt.service';
 import { Test, TestingModule } from '@nestjs/testing';
 import { User } from 'src/models/types/User';
-import {
-    UserRole,
-    UserRoleToPermissionsMap,
-} from 'src/models/types/UserRole';
+import { UserRole } from 'src/models/types/UserRole';
 import { JwtTestScopes } from 'src/models/types/Jwt';
 import { DoNotAssignThisPermissionsToRoleOrUser, UserRelatedPermissions } from 'src/models/types/UserPermissions';
+import RolesResolver from 'src/utils/helpers/RolesResolver';
 
 function createMockExecutionContext(
     user: Omit<User, 'password'> | undefined = undefined,
@@ -195,7 +193,7 @@ describe('ScopeGuard', () => {
                     const context = createMockExecutionContext(user);
 
                     jest.spyOn(reflector, 'get').mockReturnValue({
-                        permissions: [UserRoleToPermissionsMap[UserRole.ADMIN].at(0)],
+                        permissions: [RolesResolver.getRolePermissions(UserRole.ADMIN).at(0)],
                     }); // First permission of ADMIN role (could be any/random)
 
                     const result = await guard.canActivate(context);
@@ -210,7 +208,7 @@ describe('ScopeGuard', () => {
 
                     jest.spyOn(reflector, 'get').mockReturnValue({
                         permissions: [
-                            ...UserRoleToPermissionsMap[UserRole.ADMIN],
+                            ...RolesResolver.getRolePermissions(UserRole.ADMIN),
                             DoNotAssignThisPermissionsToRoleOrUser.INVALID_FOR_TESTING,
                         ],
                     });
@@ -223,7 +221,7 @@ describe('ScopeGuard', () => {
                     const user = { roles: [UserRole.ADMIN], permissions: [] } as User;
                     const context = createMockExecutionContext(user);
 
-                    jest.spyOn(reflector, 'get').mockReturnValue({ ...UserRoleToPermissionsMap[UserRole.ADMIN] });
+                    jest.spyOn(reflector, 'get').mockReturnValue({ ...RolesResolver.getRolePermissions(UserRole.ADMIN) });
 
                     const result = await guard.canActivate(context);
                     expect(result).toBe(true);
@@ -420,7 +418,7 @@ describe('ScopeGuard', () => {
 
                 jest.spyOn(reflector, 'get').mockReturnValue([
                     { permissions: [DoNotAssignThisPermissionsToRoleOrUser.INVALID_FOR_TESTING] },
-                    { permissions: [UserRoleToPermissionsMap[UserRole.ADMIN].at(1)] },
+                    { permissions: [RolesResolver.getRolePermissions(UserRole.ADMIN).at(1)] },
                 ]);
 
                 expect(guard.canActivate(onlyAdminRoleContext)).resolves.toBe(true);

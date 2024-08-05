@@ -1,10 +1,11 @@
 import { BadRequestException, Inject, Injectable, InternalServerErrorException } from '@nestjs/common';
-import { UserRole, UserRoleToPermissionsMap } from 'src/models/types/UserRole';
+import { UserRole } from 'src/models/types/UserRole';
 import { UsersService } from '../users/users.service';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { UserEntity } from 'src/models/entities/User.entity';
 import { VERBOSE } from 'src/utils/consts';
+import RolesResolver from 'src/utils/helpers/RolesResolver';
 
 @Injectable()
 export class RolesService {
@@ -46,7 +47,7 @@ export class RolesService {
      * @returns Array of all permissions for the given role.
      */
     findRolePermissions(role: UserRole) {
-        return UserRoleToPermissionsMap[role];
+        return RolesResolver.getRolePermissions(role);
     }
 
     /**

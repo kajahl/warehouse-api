@@ -1,9 +1,9 @@
 import { User } from 'src/models/types/User';
-import { UserRelatedPermissions } from 'src/models/types/UserPermissions';
+import { Permissions, UserRelatedPermissions } from 'src/models/types/UserPermissions';
 import { UserRole, UserRolePriority } from 'src/models/types/UserRole';
 
 export default class RolesResolver {
-    private static UserRoleToPermissionsMap: { [key in UserRole]: string[] } = {
+    private static UserRoleToPermissionsMap: { [key in UserRole]: Permissions[] } = {
         [UserRole.ADMIN]: [
             UserRelatedPermissions.CREATE_USER,
             UserRelatedPermissions.READ_USERS,
@@ -25,7 +25,7 @@ export default class RolesResolver {
      * const hasPermission = RolesResolver.hasPermission(UserRole.ADMIN, UserRelatedPermissions.CREATE_USER);
      * console.log(hasPermission); // Output: true
      */
-    static hasPermission(role: UserRole, permission: string): boolean {
+    static hasPermission(role: UserRole, permission: Permissions): boolean {
         const permissions = this.UserRoleToPermissionsMap[role];
         return permissions.includes(permission);
     }
@@ -35,7 +35,7 @@ export default class RolesResolver {
      * @param role Role for which permissions should be fetched
      * @returns Array of permissions for the provided role
      */
-    static getRolePermissions(role: UserRole): string[] {
+    static getRolePermissions(role: UserRole): Permissions[] {
         return this.UserRoleToPermissionsMap[role];
     }
 

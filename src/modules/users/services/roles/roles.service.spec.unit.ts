@@ -1,12 +1,13 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { RolesService } from './roles.service';
-import { UserRole, UserRoleToPermissionsMap } from 'src/models/types/UserRole';
+import { UserRole } from 'src/models/types/UserRole';
 import { CreateUser } from 'src/models/types/User';
 import { UsersService } from '../users/users.service';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { UserEntity } from 'src/models/entities/User.entity';
 import { BadRequestException, InternalServerErrorException, NotFoundException } from '@nestjs/common';
+import RolesResolver from 'src/utils/helpers/RolesResolver';
 
 describe('RolesService', () => {
     let service: RolesService;
@@ -108,7 +109,7 @@ describe('RolesService', () => {
         it('should return permissions for the given role', () => {
             Object.values(UserRole).forEach((role) => {
                 const permissions = service.findRolePermissions(role);
-                expect(permissions).toEqual(UserRoleToPermissionsMap[role]);
+                expect(permissions).toEqual(RolesResolver.getRolePermissions(role));
             });
         });
     });

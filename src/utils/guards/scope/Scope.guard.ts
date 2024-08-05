@@ -1,9 +1,9 @@
 import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { User } from 'src/models/types/User';
-import { UserRoleToPermissionsMap } from 'src/models/types/UserRole';
 import { CustomJwtService } from 'src/modules/auth/services/custom-jwt/custom-jwt.service';
 import { GuardScopes, UseScopeGuard } from 'src/utils/decorators/UseScopeGuards.decorator';
+import RolesResolver from 'src/utils/helpers/RolesResolver';
 @Injectable()
 export class ScopeGuard implements CanActivate {
     constructor(
@@ -41,7 +41,7 @@ export class ScopeGuard implements CanActivate {
         if (!isAuthenticated && isTokenProvided && !isTokenValid) return false;
 
         const individualPermissions = user?.permissions || [];
-        const rolePermissions = Array.from(new Set(user?.roles.map(role => UserRoleToPermissionsMap[role]).flat()));
+        const rolePermissions = Array.from(new Set(user?.roles.map(role => RolesResolver.getRolePermissions(role)).flat()));
         const allPermissions = Array.from(new Set([...individualPermissions, ...rolePermissions]));
 
         const authScopes: GuardScopes = {
