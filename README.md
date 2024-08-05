@@ -1,62 +1,79 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="200" alt="Nest Logo" /></a>
-</p>
+# Warehouse API
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+A comprehensive API for managing multiple logistics centers, parcel system, transport services.
+(Still in progress)
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://coveralls.io/github/nestjs/nest?branch=master" target="_blank"><img src="https://coveralls.io/repos/github/nestjs/nest/badge.svg?branch=master#9" alt="Coverage" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+## Future features
 
-## Description
+- **Parcel Tracking:** Monitor parcel status (received, delivered, in transit, etc.)
+- **Logistics Management:** Handle operations across multiple logistics centers.
 
-[xxx](docs/DESC.md) 
+## Technologies Used
 
-## Installation
+- **TypeScript:** A statically typed superset of JavaScript that enhances code quality and maintainability.
+- **NestJS:** A progressive Node.js framework for building efficient and scalable server-side applications.
+- **TypeORM:** An ORM for TypeScript and JavaScript that simplifies database interactions.
+- **Passport.js:** Middleware for authentication in Node.js applications.
+- **JWT (JSON Web Token):** Used for authentication and authorization with access and refresh tokens.
+- **Jest:** A comprehensive testing framework for JavaScript and TypeScript.
 
-```bash
-$ yarn install
-```
+## Design Patterns and Techniques
 
-## Running the app
+- **Repository Pattern:** Encapsulates data access logic, promoting separation of concerns.
+- **Decorator Pattern:** Utilized for HTTP methods, resolving objects (e.g., authUser), and metadata reflection.
+- **Data Transfer Objects (DTOs):** Ensure data consistency and validation across the application.
+- **Unit Testing:** Implemented with Jest, using mocks for isolated testing.
+- **Integration Testing:** Tests the integration of various modules and services.
+- **Custom Errors and Exceptions:** Handling of custom errors and exceptions for better error management.
+- **Serializers:** Used for transforming data before sending it to the client.
+- **Validators:** Custom validators for ensuring data integrity.
+
+## Clone repository and installation
 
 ```bash
-# development
-$ yarn run start
-
-# watch mode
-$ yarn run start:dev
-
-# production mode
-$ yarn run start:prod
+git clone https://github.com/kajahl/warehouse-api.git
+cd warehouse-api
+yarn install
 ```
 
-## Test
+## Running the App
+### Development
+```bash
+yarn run start
+```
+### Watch Mode
+```bash
+yarn run start:dev
+```
+### Production
+```bash
+yarn run start:prod
+```
+
+## Testing
+### Unit Tests
 
 ```bash
-# unit tests
-$ yarn run test:unit
-
-# integration tests
-$ yarn run test:int
-
-# e2e tests
-$ yarn run test:e2e
-
-# test coverage
-$ yarn run test:cov
+yarn run test:unit
 ```
+
+### Integration Tests
+
+```bash
+yarn run test:int
+```
+### End-to-End Tests
+```bash
+yarn run test:e2e
+```
+### Test Coverage
+
+```bash
+yarn run test:cov
+```
+
+## Project Structure
+
+- ...
+- ...
+
