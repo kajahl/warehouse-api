@@ -7,11 +7,11 @@ export default class SelfUpdateUserDto implements DTO<SelfUpdateUser> {
     @IsEmpty({ message: 'Cannot update ID' })
     id: never;
 
-    @ValidateIf((o) => o.email !== undefined)
+    @ValidateIf((o) => o.firstName !== undefined)
     @IsEmpty({ message: 'First name cannot be updated in this context' })
     firstName: never; // Cannot be updated in this context
 
-    @ValidateIf((o) => o.email !== undefined)
+    @ValidateIf((o) => o.lastName !== undefined)
     @IsEmpty({ message: 'Last name cannot be updated in this context' })
     lastName: never; // Cannot be updated in this context
 
@@ -19,7 +19,7 @@ export default class SelfUpdateUserDto implements DTO<SelfUpdateUser> {
     @Length(1, 20)
     profileName: string;
 
-    @ValidateIf((o) => o.password !== undefined)
+    @ValidateIf((o) => o.email !== undefined)
     @IsEmpty({ message: 'Email cannot be updated in this context' })
     email: never; // Cannot be updated in this context
 
