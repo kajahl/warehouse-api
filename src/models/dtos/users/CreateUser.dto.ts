@@ -1,4 +1,4 @@
-import { IsEmail, IsEnum, IsString, Length } from "class-validator";
+import { IsEmail, IsEmpty, IsEnum, IsString, Length, ValidateIf } from "class-validator";
 import { CreateUser } from "../../types/User";
 import { DTO } from "src/models/types/Dtos";
 import { UserRole } from "../../types/UserRole";
@@ -6,6 +6,10 @@ import { IsPermissions } from "src/utils/validators/isPermissions.validator";
 import { Permissions } from "src/models/types/UserPermissions";
 
 export default class CreateUserDto implements DTO<CreateUser> {
+    @ValidateIf((o) => o.id !== undefined)
+    @IsEmpty({ message: 'Cannot set ID' })
+    id: never; // Cannot set
+
     @IsString()
     @Length(1, 20)
     firstName: string;

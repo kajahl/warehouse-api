@@ -3,6 +3,10 @@ import { UpdateUser } from "../../types/User";
 import { DTO } from "src/models/types/Dtos";
 
 export default class UpdateUserDto implements DTO<UpdateUser> {
+    @ValidateIf((o) => o.id !== undefined)
+    @IsEmpty({ message: 'Cannot update ID' })
+    id: never;
+    
     @IsString()
     @IsOptional()
     @Length(1, 20)

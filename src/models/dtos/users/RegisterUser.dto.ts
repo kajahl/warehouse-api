@@ -3,6 +3,10 @@ import { RegisterUser } from "../../types/User";
 import { DTO } from "src/models/types/Dtos";
 
 export default class RegisterUserDto implements DTO<RegisterUser> {
+    @ValidateIf((o) => o.id !== undefined)
+    @IsEmpty({ message: 'Cannot set ID' })
+    id: never; // Cannot set
+    
     @IsString()
     @Length(1, 20)
     firstName: string;

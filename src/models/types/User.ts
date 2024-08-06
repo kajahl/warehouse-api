@@ -15,16 +15,16 @@ export type User = DatabaseId & {
 }
 
 // Create user
-export type CreateUser = Omit<User, 'id'>;
+export type CreateUser = SetForbiddenFields<User, 'id'>;
 
 // Register user - cannot set roles and permissions
-export type RegisterUser = SetForbiddenFields<CreateUser, 'roles' | 'permissions'>;
+export type RegisterUser = SetForbiddenFields<User, 'id' | 'roles' | 'permissions'>;
 
 // Update user - cannot set password, roles, and permissions
-export type UpdateUser = SetForbiddenFields<Partial<User>, 'password' | 'roles' | 'permissions'>;
+export type UpdateUser = SetForbiddenFields<Partial<User>, 'id' | 'password' | 'roles' | 'permissions'>;
 
 // Self update user - cannot set first name, last name, email, password, roles, and permissions
-export type SelfUpdateUser = SetForbiddenFields<Partial<User>, 'firstName' | 'lastName' | 'email' | 'password' | 'roles' | 'permissions'>;
+export type SelfUpdateUser = SetForbiddenFields<Partial<User>, 'id' | 'firstName' | 'lastName' | 'email' | 'password' | 'roles' | 'permissions'>;
 
 // User without password (use in session serialized user)
 export type UserWithoutPassword = SetForbiddenFields<User, 'password'>;

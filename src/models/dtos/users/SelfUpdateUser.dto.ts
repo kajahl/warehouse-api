@@ -3,6 +3,10 @@ import { SelfUpdateUser } from "../../types/User";
 import { DTO } from "src/models/types/Dtos";
 
 export default class SelfUpdateUserDto implements DTO<SelfUpdateUser> {
+    @ValidateIf((o) => o.id !== undefined)
+    @IsEmpty({ message: 'Cannot update ID' })
+    id: never;
+
     @ValidateIf((o) => o.email !== undefined)
     @IsEmpty({ message: 'First name cannot be updated in this context' })
     firstName: never; // Cannot be updated in this context
